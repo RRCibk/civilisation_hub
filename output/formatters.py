@@ -339,7 +339,7 @@ class TableFormatter(Formatter):
 
         # Calculate column widths
         key_width = max(len(str(k)) for k in data.keys()) + 2
-        val_width = max(len(str(v)) for v in data.values() if not isinstance(v, (dict, list))) + 2
+        val_width = max(len(str(v)) for v in data.values() if not isinstance(v, dict | list)) + 2
         val_width = max(val_width, 10)
 
         lines = []
@@ -349,7 +349,7 @@ class TableFormatter(Formatter):
         lines.append(f"├{'─' * key_width}┼{'─' * val_width}┤")
 
         for key, value in data.items():
-            if isinstance(value, (dict, list)):
+            if isinstance(value, dict | list):
                 value = f"[{type(value).__name__}]"
             lines.append(f"│{str(key):<{key_width}}│{str(value):<{val_width}}│")
 
@@ -395,7 +395,7 @@ class TableFormatter(Formatter):
             max_width = len(key)
             for item in data:
                 val = item.get(key, "")
-                if not isinstance(val, (dict, list)):
+                if not isinstance(val, dict | list):
                     max_width = max(max_width, len(str(val)))
             widths[key] = max_width + 2
 
@@ -416,7 +416,7 @@ class TableFormatter(Formatter):
             row_vals = []
             for key in all_keys:
                 val = item.get(key, "")
-                if isinstance(val, (dict, list)):
+                if isinstance(val, dict | list):
                     val = f"[{type(val).__name__}]"
                 row_vals.append(f"{str(val):<{widths[key]}}")
             lines.append("│" + "│".join(row_vals) + "│")

@@ -229,6 +229,29 @@ python -m pytest tests/test_equilibrium.py -v
 python -m pytest --cov=.
 ```
 
+## Pre-commit Hooks
+
+Local development uses pre-commit hooks for code quality:
+
+```bash
+# Install pre-commit hooks (one-time setup)
+pip install pre-commit
+pre-commit install
+
+# Run hooks manually on all files
+pre-commit run --all-files
+
+# Run specific hook
+pre-commit run ruff --all-files
+pre-commit run mypy --all-files
+```
+
+### Configured Hooks
+
+1. **pre-commit-hooks**: trailing whitespace, end-of-file fixer, YAML check, large file check, merge conflict check
+2. **ruff**: Linting with auto-fix and formatting
+3. **mypy**: Static type checking (excludes tests/)
+
 ## Design Principles
 
 1. **Every duality must be 50/50** - No exceptions at META level

@@ -158,7 +158,7 @@ class BalanceValidator(BaseValidator[dict]):
         negative = data["negative"]
 
         # Check types
-        if not isinstance(positive, (int, float)):
+        if not isinstance(positive, int | float):
             issues.append(
                 ValidationIssue(
                     code="INVALID_TYPE",
@@ -170,7 +170,7 @@ class BalanceValidator(BaseValidator[dict]):
             )
             score -= 30
 
-        if not isinstance(negative, (int, float)):
+        if not isinstance(negative, int | float):
             issues.append(
                 ValidationIssue(
                     code="INVALID_TYPE",
@@ -394,7 +394,7 @@ class RangeValidator(BaseValidator[float]):
         issues = []
         score = 100.0
 
-        if not isinstance(data, (int, float)):
+        if not isinstance(data, int | float):
             issues.append(
                 ValidationIssue(
                     code="INVALID_TYPE",
