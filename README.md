@@ -1,6 +1,7 @@
 # Civilisation Hub
 
 [![CI](https://github.com/RRCibk/civilisation_hub/actions/workflows/ci.yml/badge.svg)](https://github.com/RRCibk/civilisation_hub/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/RRCibk/civilisation_hub/branch/main/graph/badge.svg)](https://codecov.io/gh/RRCibk/civilisation_hub)
 
 A knowledge management system built on the principle of META 50/50 Equilibrium.
 
