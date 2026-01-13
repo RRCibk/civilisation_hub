@@ -6,17 +6,15 @@ Fundamental duality: Abstract/Concrete (pure/applied mathematics).
 """
 
 from typing import Any
-from uuid import UUID
 
-from models.domain import DomainType
 from core.equilibrium import MetaEquilibrium
 from knowledge.domains.base import (
-    KnowledgeDomain,
     Concept,
     ConceptType,
-    ConceptRelation,
+    KnowledgeDomain,
     RelationType,
 )
+from models.domain import DomainType
 
 
 class MathematicsDomain(KnowledgeDomain):
@@ -35,7 +33,7 @@ class MathematicsDomain(KnowledgeDomain):
             name="Mathematics",
             domain_type=DomainType.FUNDAMENTAL,
             description="The study of numbers, quantities, structures, and patterns",
-            meta_equilibrium=meta_equilibrium
+            meta_equilibrium=meta_equilibrium,
         )
 
     def _initialize_duality(self) -> None:
@@ -45,7 +43,7 @@ class MathematicsDomain(KnowledgeDomain):
             positive_value=50,
             negative_name="concrete",
             negative_value=50,
-            duality_name="mathematics_duality"
+            duality_name="mathematics_duality",
         )
         self._domain.activate()
 
@@ -67,15 +65,27 @@ class MathematicsDomain(KnowledgeDomain):
                 name=name,
                 concept_type=ConceptType.AXIOM,
                 description=description,
-                certainty=100  # Axioms are certain by definition
+                certainty=100,  # Axioms are certain by definition
             )
 
     def get_fundamental_concepts(self) -> list[str]:
         """Get fundamental mathematical concepts."""
         return [
-            "Number", "Set", "Function", "Relation", "Operation",
-            "Proof", "Theorem", "Definition", "Structure", "Space",
-            "Infinity", "Limit", "Continuity", "Derivative", "Integral"
+            "Number",
+            "Set",
+            "Function",
+            "Relation",
+            "Operation",
+            "Proof",
+            "Theorem",
+            "Definition",
+            "Structure",
+            "Space",
+            "Infinity",
+            "Limit",
+            "Continuity",
+            "Derivative",
+            "Integral",
         ]
 
     def initialize_branches(self) -> None:
@@ -92,7 +102,11 @@ class MathematicsDomain(KnowledgeDomain):
             ("Statistics", "Collection, analysis, and interpretation of data", ConceptType.THEORY),
             ("Logic", "Study of valid reasoning", ConceptType.THEORY),
             ("Set Theory", "Study of collections of objects", ConceptType.THEORY),
-            ("Category Theory", "Study of abstract structures and relationships", ConceptType.THEORY),
+            (
+                "Category Theory",
+                "Study of abstract structures and relationships",
+                ConceptType.THEORY,
+            ),
         ]
 
         for name, description, concept_type in branches:
@@ -113,9 +127,7 @@ class MathematicsDomain(KnowledgeDomain):
         concepts = []
         for name, description, symbol in systems:
             concept = self.create_concept(
-                name=name,
-                concept_type=ConceptType.DEFINITION,
-                description=description
+                name=name, concept_type=ConceptType.DEFINITION, description=description
             )
             concept.metadata["symbol"] = symbol
             concepts.append(concept)
@@ -124,40 +136,23 @@ class MathematicsDomain(KnowledgeDomain):
         for i in range(len(concepts) - 1):
             if i < 5:  # Standard containment chain
                 self.create_relation(
-                    concepts[i],
-                    concepts[i + 1],
-                    RelationType.SPECIALIZES,
-                    strength=100
+                    concepts[i], concepts[i + 1], RelationType.SPECIALIZES, strength=100
                 )
 
     def add_theorem(
-        self,
-        name: str,
-        statement: str,
-        proof_sketch: str = "",
-        certainty: float = 100.0
+        self, name: str, statement: str, proof_sketch: str = "", certainty: float = 100.0
     ) -> Concept:
         """Add a mathematical theorem."""
         theorem = self.create_concept(
-            name=name,
-            concept_type=ConceptType.THEOREM,
-            description=statement,
-            certainty=certainty
+            name=name, concept_type=ConceptType.THEOREM, description=statement, certainty=certainty
         )
         theorem.metadata["proof_sketch"] = proof_sketch
         return theorem
 
-    def add_definition(
-        self,
-        name: str,
-        definition: str,
-        notation: str = ""
-    ) -> Concept:
+    def add_definition(self, name: str, definition: str, notation: str = "") -> Concept:
         """Add a mathematical definition."""
         concept = self.create_concept(
-            name=name,
-            concept_type=ConceptType.DEFINITION,
-            description=definition
+            name=name, concept_type=ConceptType.DEFINITION, description=definition
         )
         if notation:
             concept.metadata["notation"] = notation
@@ -169,32 +164,32 @@ class MathematicsDomain(KnowledgeDomain):
             (
                 "Pythagorean Theorem",
                 "In a right triangle, a² + b² = c²",
-                "Proof by similar triangles or algebraic methods"
+                "Proof by similar triangles or algebraic methods",
             ),
             (
                 "Fundamental Theorem of Arithmetic",
                 "Every integer > 1 is either prime or a unique product of primes",
-                "Proof by strong induction"
+                "Proof by strong induction",
             ),
             (
                 "Fundamental Theorem of Calculus",
                 "Differentiation and integration are inverse operations",
-                "Links differential and integral calculus"
+                "Links differential and integral calculus",
             ),
             (
                 "Fundamental Theorem of Algebra",
                 "Every non-constant polynomial has at least one complex root",
-                "Multiple proofs: algebraic, analytic, topological"
+                "Multiple proofs: algebraic, analytic, topological",
             ),
             (
                 "Gödel's Incompleteness Theorems",
                 "Any consistent formal system has unprovable truths",
-                "Self-referential construction"
+                "Self-referential construction",
             ),
             (
                 "Cantor's Theorem",
                 "The power set of any set has greater cardinality",
-                "Diagonal argument"
+                "Diagonal argument",
             ),
         ]
 
@@ -217,23 +212,25 @@ class MathematicsDomain(KnowledgeDomain):
         Shows mathematical harmony and balance.
         """
         import math
+
         phi = (1 + math.sqrt(5)) / 2
         psi = (1 - math.sqrt(5)) / 2  # Conjugate
 
         return {
             "phi": phi,
             "psi": psi,
-            "phi_squared": phi ** 2,
+            "phi_squared": phi**2,
             "phi_plus_1": phi + 1,
-            "phi_squared_equals_phi_plus_1": abs(phi ** 2 - (phi + 1)) < 1e-10,
+            "phi_squared_equals_phi_plus_1": abs(phi**2 - (phi + 1)) < 1e-10,
             "phi_times_psi": phi * psi,  # Should be -1
-            "phi_plus_psi": phi + psi,   # Should be 1
-            "balance_demonstrated": True
+            "phi_plus_psi": phi + psi,  # Should be 1
+            "balance_demonstrated": True,
         }
 
     def get_mathematical_constants(self) -> dict[str, float]:
         """Get fundamental mathematical constants."""
         import math
+
         return {
             "pi": math.pi,
             "e": math.e,
@@ -246,8 +243,7 @@ class MathematicsDomain(KnowledgeDomain):
 
 
 def create_mathematics_domain(
-    meta_equilibrium: MetaEquilibrium | None = None,
-    initialize_all: bool = True
+    meta_equilibrium: MetaEquilibrium | None = None, initialize_all: bool = True
 ) -> MathematicsDomain:
     """
     Factory function to create a fully initialized mathematics domain.

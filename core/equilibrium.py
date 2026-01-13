@@ -49,17 +49,13 @@ class MetaEquilibrium:
         if not self.verify_balance(positive, negative):
             balance = self.calculate_balance(positive, negative)
             raise ValueError(
-                f"Parameter '{name}' violates META 50/50: "
-                f"got {balance[0]:.2f}/{balance[1]:.2f}"
+                f"Parameter '{name}' violates META 50/50: got {balance[0]:.2f}/{balance[1]:.2f}"
             )
         self._validated_parameters[name] = (positive, negative)
         return True
 
     def validate_operational_enables_meta(
-        self,
-        structure: float,
-        flexibility: float,
-        operational_ratio: tuple[int, int] = (52, 48)
+        self, structure: float, flexibility: float, operational_ratio: tuple[int, int] = (52, 48)
     ) -> bool:
         """
         Validate that operational 52/48 ratio enables meta 50/50.
@@ -73,8 +69,8 @@ class MetaEquilibrium:
         actual_flexibility = flexibility / total * 100
         expected_structure, expected_flexibility = operational_ratio
         return (
-            abs(actual_structure - expected_structure) < 0.01 and
-            abs(actual_flexibility - expected_flexibility) < 0.01
+            abs(actual_structure - expected_structure) < 0.01
+            and abs(actual_flexibility - expected_flexibility) < 0.01
         )
 
     @property
@@ -85,17 +81,19 @@ class MetaEquilibrium:
 
 class WaveState(Enum):
     """Atom wave states: negative, neutral, positive."""
-    W_MINUS = "w⁻"   # Negative wave state
-    W_ZERO = "w⁰"    # Neutral wave state
-    W_PLUS = "w⁺"    # Positive wave state
+
+    W_MINUS = "w⁻"  # Negative wave state
+    W_ZERO = "w⁰"  # Neutral wave state
+    W_PLUS = "w⁺"  # Positive wave state
 
 
 @dataclass
 class AtomState:
     """Represents the current state distribution of an Atom."""
+
     w_minus: float  # Negative component
-    w_zero: float   # Neutral component
-    w_plus: float   # Positive component
+    w_zero: float  # Neutral component
+    w_plus: float  # Positive component
 
     def __post_init__(self):
         """Validate state maintains proper distribution."""
@@ -112,10 +110,7 @@ class AtomState:
         polar_total = self.w_minus + self.w_plus
         if polar_total == 0:
             return (50.0, 50.0)
-        return (
-            self.w_minus / polar_total * 100,
-            self.w_plus / polar_total * 100
-        )
+        return (self.w_minus / polar_total * 100, self.w_plus / polar_total * 100)
 
 
 class Atom:
@@ -146,10 +141,7 @@ class Atom:
     def operational_ratio(self) -> tuple[float, float]:
         """Return current operational ratio (structure/flexibility)."""
         total = self._structure + self._flexibility
-        return (
-            self._structure / total * 100,
-            self._flexibility / total * 100
-        )
+        return (self._structure / total * 100, self._flexibility / total * 100)
 
     def set_state(self, w_minus: float, w_zero: float, w_plus: float) -> None:
         """
@@ -172,9 +164,7 @@ class Atom:
     def validate_operational_compliance(self) -> bool:
         """Verify this atom operates at 52/48 ratio."""
         return self._meta.validate_operational_enables_meta(
-            self._structure,
-            self._flexibility,
-            self.OPERATIONAL_RATIO
+            self._structure, self._flexibility, self.OPERATIONAL_RATIO
         )
 
     def prove_meta_meaning(self) -> dict[str, Any]:
@@ -190,19 +180,19 @@ class Atom:
             "meta_balance": {
                 "w_minus": polar_balance[0],
                 "w_plus": polar_balance[1],
-                "is_50_50": polar_balance == (50.0, 50.0)
+                "is_50_50": polar_balance == (50.0, 50.0),
             },
             "operational_valid": self.validate_operational_compliance(),
             "operational_ratio": {
                 "structure": operational[0],
                 "flexibility": operational[1],
-                "is_52_48": abs(operational[0] - 52) < 0.01
+                "is_52_48": abs(operational[0] - 52) < 0.01,
             },
             "state": {
                 "w⁻": self._state.w_minus,
                 "w⁰": self._state.w_zero,
-                "w⁺": self._state.w_plus
-            }
+                "w⁺": self._state.w_plus,
+            },
         }
 
     def __repr__(self) -> str:
@@ -225,7 +215,7 @@ class SubParameter:
         name: str,
         positive_value: float,
         negative_value: float,
-        meta_equilibrium: MetaEquilibrium | None = None
+        meta_equilibrium: MetaEquilibrium | None = None,
     ):
         self._meta = meta_equilibrium or MetaEquilibrium()
         self._name = name
@@ -260,7 +250,7 @@ class SubParameter:
             "negative": self._negative,
             "balance": f"{balance[0]:.2f}/{balance[1]:.2f}",
             "meta_valid": balance == (50.0, 50.0),
-            "proof": "Maintains META 50/50 equilibrium"
+            "proof": "Maintains META 50/50 equilibrium",
         }
 
     def __repr__(self) -> str:

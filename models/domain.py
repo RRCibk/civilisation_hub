@@ -5,14 +5,13 @@ Models for representing knowledge domains with META 50/50 balance.
 Each domain maintains equilibrium between complementary aspects.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
 
 from core.equilibrium import MetaEquilibrium, SubParameter
 from core.proportions import (
-    Ratio,
     OperationalRatio,
     ProportionValidator,
     calculate_52_48,
@@ -21,19 +20,21 @@ from core.proportions import (
 
 class DomainType(Enum):
     """Types of knowledge domains."""
-    FUNDAMENTAL = "fundamental"      # Core/base domains
-    DERIVED = "derived"              # Domains derived from fundamentals
-    COMPOSITE = "composite"          # Domains combining multiple others
-    EMERGENT = "emergent"            # Domains emerging from interactions
+
+    FUNDAMENTAL = "fundamental"  # Core/base domains
+    DERIVED = "derived"  # Domains derived from fundamentals
+    COMPOSITE = "composite"  # Domains combining multiple others
+    EMERGENT = "emergent"  # Domains emerging from interactions
 
 
 class DomainState(Enum):
     """States a domain can be in."""
-    NASCENT = "nascent"              # Newly created, not yet balanced
-    ACTIVE = "active"                # Actively balanced and operational
-    EVOLVING = "evolving"            # Undergoing transformation
-    STABLE = "stable"                # Reached equilibrium state
-    ARCHIVED = "archived"            # No longer active but preserved
+
+    NASCENT = "nascent"  # Newly created, not yet balanced
+    ACTIVE = "active"  # Actively balanced and operational
+    EVOLVING = "evolving"  # Undergoing transformation
+    STABLE = "stable"  # Reached equilibrium state
+    ARCHIVED = "archived"  # No longer active but preserved
 
 
 @dataclass
@@ -42,6 +43,7 @@ class DomainPole:
     Represents one pole of a domain's duality.
     Every domain has complementary poles that must balance at META 50/50.
     """
+
     name: str
     value: float
     description: str = ""
@@ -57,6 +59,7 @@ class DomainDuality:
     The fundamental duality of a knowledge domain.
     Positive and negative poles must maintain META 50/50 balance.
     """
+
     positive: DomainPole
     negative: DomainPole
     name: str = "duality"
@@ -91,12 +94,7 @@ class DomainDuality:
 
     def to_sub_parameter(self, meta: MetaEquilibrium | None = None) -> SubParameter:
         """Convert to SubParameter for registration."""
-        return SubParameter(
-            self.name,
-            self.positive.value,
-            self.negative.value,
-            meta
-        )
+        return SubParameter(self.name, self.positive.value, self.negative.value, meta)
 
 
 @dataclass
@@ -105,6 +103,7 @@ class DomainAttribute:
     An attribute of a knowledge domain.
     Attributes have structure/flexibility distribution (52/48).
     """
+
     name: str
     total_value: float
     description: str = ""
@@ -135,7 +134,7 @@ class DomainAttribute:
             "structure": self._structure,
             "flexibility": self._flexibility,
             "ratio": f"{self._structure / self.total_value * 100:.0f}/{self._flexibility / self.total_value * 100:.0f}",
-            "is_operational": True
+            "is_operational": True,
         }
 
 
@@ -154,7 +153,7 @@ class Domain:
         name: str,
         domain_type: DomainType = DomainType.FUNDAMENTAL,
         description: str = "",
-        meta_equilibrium: MetaEquilibrium | None = None
+        meta_equilibrium: MetaEquilibrium | None = None,
     ):
         self._id: UUID = uuid4()
         self._name = name
@@ -166,8 +165,8 @@ class Domain:
 
         self._duality: DomainDuality | None = None
         self._attributes: dict[str, DomainAttribute] = {}
-        self._sub_domains: dict[str, "Domain"] = {}
-        self._relationships: dict[str, "DomainRelationship"] = {}
+        self._sub_domains: dict[str, Domain] = {}
+        self._relationships: dict[str, DomainRelationship] = {}
 
     @property
     def id(self) -> UUID:
@@ -207,7 +206,7 @@ class Domain:
         positive_value: float,
         negative_name: str,
         negative_value: float,
-        duality_name: str | None = None
+        duality_name: str | None = None,
     ) -> None:
         """
         Set the domain's fundamental duality.
@@ -216,17 +215,11 @@ class Domain:
         positive = DomainPole(positive_name, positive_value)
         negative = DomainPole(negative_name, negative_value)
         duality = DomainDuality(
-            positive=positive,
-            negative=negative,
-            name=duality_name or f"{self._name}_duality"
+            positive=positive, negative=negative, name=duality_name or f"{self._name}_duality"
         )
         duality.validate()  # Raises if not balanced
         self._duality = duality
-        self._meta.register_parameter(
-            duality.name,
-            positive_value,
-            negative_value
-        )
+        self._meta.register_parameter(duality.name, positive_value, negative_value)
 
     def add_attribute(self, name: str, value: float, description: str = "") -> DomainAttribute:
         """
@@ -279,25 +272,19 @@ class Domain:
                 "positive": {
                     "name": self._duality.positive.name,
                     "value": self._duality.positive.value,
-                    "percentage": balance[0]
+                    "percentage": balance[0],
                 },
                 "negative": {
                     "name": self._duality.negative.name,
                     "value": self._duality.negative.value,
-                    "percentage": balance[1]
+                    "percentage": balance[1],
                 },
-                "is_balanced": self._duality.is_balanced
+                "is_balanced": self._duality.is_balanced,
             }
 
-        attributes_proof = [
-            attr.prove_operational()
-            for attr in self._attributes.values()
-        ]
+        attributes_proof = [attr.prove_operational() for attr in self._attributes.values()]
 
-        sub_domains_valid = all(
-            sd.validate_meta_compliance()
-            for sd in self._sub_domains.values()
-        )
+        sub_domains_valid = all(sd.validate_meta_compliance() for sd in self._sub_domains.values())
 
         return {
             "domain": self._name,
@@ -312,14 +299,11 @@ class Domain:
                 f"Domain '{self._name}' maintains META 50/50 equilibrium"
                 if self.validate_meta_compliance()
                 else f"Domain '{self._name}' violates META 50/50"
-            )
+            ),
         }
 
     def __repr__(self) -> str:
-        return (
-            f"Domain({self._name}, type={self._type.value}, "
-            f"state={self._state.value})"
-        )
+        return f"Domain({self._name}, type={self._type.value}, state={self._state.value})"
 
 
 @dataclass
@@ -328,6 +312,7 @@ class DomainRelationship:
     Relationship between two domains.
     Relationships must maintain META 50/50 in their influence.
     """
+
     name: str
     source: Domain
     target: Domain
@@ -342,10 +327,7 @@ class DomainRelationship:
     def _validate(self) -> None:
         """Validate relationship maintains META 50/50."""
         if not self._meta.verify_balance(self.influence_give, self.influence_receive):
-            balance = self._meta.calculate_balance(
-                self.influence_give,
-                self.influence_receive
-            )
+            balance = self._meta.calculate_balance(self.influence_give, self.influence_receive)
             raise ValueError(
                 f"Relationship '{self.name}' violates META 50/50: "
                 f"give={balance[0]:.2f}% / receive={balance[1]:.2f}%"
@@ -363,10 +345,7 @@ class DomainRelationship:
 
     def prove_meta_meaning(self) -> dict[str, Any]:
         """Prove relationship maintains META 50/50."""
-        balance = self._meta.calculate_balance(
-            self.influence_give,
-            self.influence_receive
-        )
+        balance = self._meta.calculate_balance(self.influence_give, self.influence_receive)
         return {
             "name": self.name,
             "source": self.source.name,
@@ -376,7 +355,7 @@ class DomainRelationship:
             "receive": self.influence_receive,
             "balance": f"{balance[0]:.2f}/{balance[1]:.2f}",
             "is_balanced": self.is_balanced,
-            "proof": "Relationship maintains META 50/50 equilibrium"
+            "proof": "Relationship maintains META 50/50 equilibrium",
         }
 
 
@@ -434,11 +413,9 @@ class DomainHierarchy:
         for domain in self._all_domains.values():
             is_valid = domain.validate_meta_compliance()
             all_valid = all_valid and is_valid
-            domain_reports.append({
-                "name": domain.name,
-                "valid": is_valid,
-                "state": domain.state.value
-            })
+            domain_reports.append(
+                {"name": domain.name, "valid": is_valid, "state": domain.state.value}
+            )
 
         return {
             "hierarchy": self._name,
@@ -450,21 +427,15 @@ class DomainHierarchy:
                 f"Hierarchy '{self._name}' maintains META 50/50"
                 if all_valid
                 else f"Hierarchy '{self._name}' has invalid domains"
-            )
+            ),
         }
 
     def prove_meta_meaning(self) -> dict[str, Any]:
         """Generate complete META proof for hierarchy."""
         validation = self.validate_hierarchy()
-        root_proofs = [
-            domain.prove_meta_meaning()
-            for domain in self._root_domains.values()
-        ]
+        root_proofs = [domain.prove_meta_meaning() for domain in self._root_domains.values()]
 
-        return {
-            **validation,
-            "root_domain_proofs": root_proofs
-        }
+        return {**validation, "root_domain_proofs": root_proofs}
 
     def __repr__(self) -> str:
         return f"DomainHierarchy({self._name}, domains={self.total_domains})"

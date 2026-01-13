@@ -9,35 +9,35 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Generic, TypeVar
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from core.equilibrium import MetaEquilibrium
 from core.proportions import (
     ProportionValidator,
-    Ratio,
-    calculate_52_48,
     calculate_50_50,
+    calculate_52_48,
 )
-
 
 T = TypeVar("T")
 
 
 class EvolutionPhase(Enum):
     """Phases of evolution."""
-    GENESIS = "genesis"          # Initial creation
-    GROWTH = "growth"            # Expansion phase
-    MATURATION = "maturation"    # Stabilization phase
+
+    GENESIS = "genesis"  # Initial creation
+    GROWTH = "growth"  # Expansion phase
+    MATURATION = "maturation"  # Stabilization phase
     TRANSFORMATION = "transformation"  # Major change phase
-    DECAY = "decay"              # Reduction phase
+    DECAY = "decay"  # Reduction phase
     EQUILIBRIUM = "equilibrium"  # Balanced state
 
 
 class EvolutionDirection(Enum):
     """Direction of evolutionary change."""
-    POSITIVE = "positive"    # Growth/expansion
-    NEGATIVE = "negative"    # Decay/contraction
-    NEUTRAL = "neutral"      # No net change (balanced)
+
+    POSITIVE = "positive"  # Growth/expansion
+    NEGATIVE = "negative"  # Decay/contraction
+    NEUTRAL = "neutral"  # No net change (balanced)
 
 
 @dataclass
@@ -46,6 +46,7 @@ class EvolutionDelta:
     Represents a change in evolution.
     Deltas must maintain META 50/50 between positive and negative components.
     """
+
     positive_change: float
     negative_change: float
     timestamp: datetime = field(default_factory=datetime.now)
@@ -90,8 +91,7 @@ class EvolutionDelta:
         if not self.is_balanced:
             ratio = self.balance_ratio
             raise ValueError(
-                f"Evolution delta violates META 50/50: "
-                f"+{ratio[0]:.2f}%/-{ratio[1]:.2f}%"
+                f"Evolution delta violates META 50/50: +{ratio[0]:.2f}%/-{ratio[1]:.2f}%"
             )
 
 
@@ -100,6 +100,7 @@ class EvolutionSnapshot:
     """
     A snapshot of an entity's evolutionary state at a point in time.
     """
+
     entity_id: UUID
     timestamp: datetime
     phase: EvolutionPhase
@@ -137,7 +138,7 @@ class EvolutionState:
         self,
         entity_id: UUID,
         initial_energy: float = 100.0,
-        phase: EvolutionPhase = EvolutionPhase.GENESIS
+        phase: EvolutionPhase = EvolutionPhase.GENESIS,
     ):
         self._entity_id = entity_id
         self._phase = phase
@@ -208,7 +209,6 @@ class EvolutionState:
         self._negative_energy += delta.negative_change
 
         # Update operational components proportionally
-        scale = self.total_energy / (self.total_energy - delta.total_magnitude) if self.total_energy > delta.total_magnitude else 1
         self._structure, self._flexibility = calculate_52_48(self.total_energy)
 
         self._updated_at = datetime.now()
@@ -230,12 +230,12 @@ class EvolutionState:
             attributes={
                 "structure": self._structure,
                 "flexibility": self._flexibility,
-                "generation": self._generation
+                "generation": self._generation,
             },
             metadata={
                 "created_at": self._created_at.isoformat(),
-                "updated_at": self._updated_at.isoformat()
-            }
+                "updated_at": self._updated_at.isoformat(),
+            },
         )
 
     def prove_meta_meaning(self) -> dict[str, Any]:
@@ -251,19 +251,19 @@ class EvolutionState:
                 "positive": self._positive_energy,
                 "negative": self._negative_energy,
                 "total": self.total_energy,
-                "balance": f"{balance[0]:.2f}/{balance[1]:.2f}"
+                "balance": f"{balance[0]:.2f}/{balance[1]:.2f}",
             },
             "meta_valid": self.is_balanced,
             "operational": {
                 "structure": self._structure,
                 "flexibility": self._flexibility,
-                "ratio": f"{operational[0]:.2f}/{operational[1]:.2f}"
+                "ratio": f"{operational[0]:.2f}/{operational[1]:.2f}",
             },
             "proof": (
                 "Evolution state maintains META 50/50 equilibrium"
                 if self.is_balanced
                 else "Evolution state violates META 50/50"
-            )
+            ),
         }
 
 
@@ -289,7 +289,7 @@ class EvolutionTracker(Generic[T]):
         self,
         entity_id: UUID,
         initial_energy: float = 100.0,
-        phase: EvolutionPhase = EvolutionPhase.GENESIS
+        phase: EvolutionPhase = EvolutionPhase.GENESIS,
     ) -> EvolutionState:
         """
         Register an entity for evolution tracking.
@@ -333,11 +333,7 @@ class EvolutionTracker(Generic[T]):
         return self._deltas.get(entity_id, []).copy()
 
     def evolve(
-        self,
-        entity_id: UUID,
-        positive_change: float,
-        negative_change: float,
-        description: str = ""
+        self, entity_id: UUID, positive_change: float, negative_change: float, description: str = ""
     ) -> EvolutionDelta:
         """
         Apply evolution to an entity.
@@ -362,7 +358,7 @@ class EvolutionTracker(Generic[T]):
         delta = EvolutionDelta(
             positive_change=positive_change,
             negative_change=negative_change,
-            description=description
+            description=description,
         )
 
         # Apply delta (validates internally)
@@ -375,10 +371,7 @@ class EvolutionTracker(Generic[T]):
         return delta
 
     def evolve_balanced(
-        self,
-        entity_id: UUID,
-        magnitude: float,
-        description: str = ""
+        self, entity_id: UUID, magnitude: float, description: str = ""
     ) -> EvolutionDelta:
         """
         Apply balanced evolution (automatically 50/50 split).
@@ -394,11 +387,7 @@ class EvolutionTracker(Generic[T]):
         half = magnitude / 2
         return self.evolve(entity_id, half, half, description)
 
-    def transition(
-        self,
-        entity_id: UUID,
-        new_phase: EvolutionPhase
-    ) -> None:
+    def transition(self, entity_id: UUID, new_phase: EvolutionPhase) -> None:
         """
         Transition an entity to a new evolution phase.
 
@@ -431,28 +420,27 @@ class EvolutionTracker(Generic[T]):
             else:
                 invalid_count += 1
 
-            entity_reports.append({
-                "entity_id": str(entity_id),
-                "phase": state.phase.value,
-                "generation": state.generation,
-                "balanced": is_valid
-            })
+            entity_reports.append(
+                {
+                    "entity_id": str(entity_id),
+                    "phase": state.phase.value,
+                    "generation": state.generation,
+                    "balanced": is_valid,
+                }
+            )
 
         return {
             "tracked_entities": self.tracked_count,
             "valid": valid_count,
             "invalid": invalid_count,
             "all_valid": invalid_count == 0,
-            "entities": entity_reports
+            "entities": entity_reports,
         }
 
     def prove_tracker_meta_meaning(self) -> dict[str, Any]:
         """Generate META proof for entire tracker."""
         validation = self.validate_all()
-        state_proofs = [
-            state.prove_meta_meaning()
-            for state in self._states.values()
-        ]
+        state_proofs = [state.prove_meta_meaning() for state in self._states.values()]
 
         return {
             **validation,
@@ -461,7 +449,7 @@ class EvolutionTracker(Generic[T]):
                 "Evolution tracker maintains META 50/50 equilibrium"
                 if validation["all_valid"]
                 else "Evolution tracker has entities violating META 50/50"
-            )
+            ),
         }
 
 
@@ -553,11 +541,11 @@ class EvolutionMetrics:
                 "momentum": self.calculate_momentum(entity_id),
                 "generations": state.generation,
                 "snapshots": len(history),
-                "deltas_applied": len(deltas)
+                "deltas_applied": len(deltas),
             },
             "history_summary": {
                 "first_snapshot": history[0].timestamp.isoformat() if history else None,
                 "last_snapshot": history[-1].timestamp.isoformat() if history else None,
-                "phases_visited": list(set(s.phase.value for s in history))
-            }
+                "phases_visited": list({s.phase.value for s in history}),
+            },
         }

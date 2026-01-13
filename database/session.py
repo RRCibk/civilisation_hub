@@ -4,8 +4,8 @@ Session Management
 SQLAlchemy session management with context managers.
 """
 
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
 
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -26,10 +26,7 @@ class SessionManager:
             engine: Database engine instance. Uses default if None.
         """
         self._engine = engine or get_engine()
-        self._session_factory = sessionmaker(
-            bind=self._engine.engine,
-            expire_on_commit=False
-        )
+        self._session_factory = sessionmaker(bind=self._engine.engine, expire_on_commit=False)
 
     @property
     def engine(self) -> DatabaseEngine:

@@ -6,6 +6,7 @@ Tests for domain registry with META 50/50 compliance.
 
 import pytest
 
+from core.equilibrium import MetaEquilibrium
 from knowledge.domains.registry import (
     DomainRegistry,
     get_registry,
@@ -13,12 +14,11 @@ from knowledge.domains.registry import (
 )
 from models.domain import (
     Domain,
-    DomainType,
-    DomainState,
     DomainHierarchy,
     DomainRelationship,
+    DomainState,
+    DomainType,
 )
-from core.equilibrium import MetaEquilibrium
 
 
 @pytest.fixture(autouse=True)
@@ -214,9 +214,7 @@ class TestDomainRegistryCreate:
         """Should create domain with balanced duality."""
         registry = DomainRegistry()
         domain = registry.create_domain(
-            name="Physics",
-            positive_pole=("matter", 100),
-            negative_pole=("antimatter", 100)
+            name="Physics", positive_pole=("matter", 100), negative_pole=("antimatter", 100)
         )
 
         assert domain.duality is not None
@@ -230,7 +228,7 @@ class TestDomainRegistryCreate:
             name="Chemistry",
             domain_type=DomainType.DERIVED,
             positive_pole=("synthesis", 50),
-            negative_pole=("decomposition", 50)
+            negative_pole=("decomposition", 50),
         )
 
         assert domain.domain_type == DomainType.DERIVED
@@ -238,10 +236,7 @@ class TestDomainRegistryCreate:
     def test_create_domain_no_auto_register(self):
         """Should not register when auto_register=False."""
         registry = DomainRegistry()
-        domain = registry.create_domain(
-            name="Physics",
-            auto_register=False
-        )
+        domain = registry.create_domain(name="Physics", auto_register=False)
 
         assert registry.domain_count == 0
         assert domain.name == "Physics"
@@ -262,19 +257,10 @@ class TestDomainRegistryRelationships:
         """Should create balanced relationship."""
         registry = DomainRegistry()
 
-        source = registry.create_domain(
-            "A", positive_pole=("p", 50), negative_pole=("n", 50)
-        )
-        target = registry.create_domain(
-            "B", positive_pole=("p", 50), negative_pole=("n", 50)
-        )
+        source = registry.create_domain("A", positive_pole=("p", 50), negative_pole=("n", 50))
+        target = registry.create_domain("B", positive_pole=("p", 50), negative_pole=("n", 50))
 
-        rel = registry.create_relationship(
-            name="A_B",
-            source=source,
-            target=target,
-            influence=200
-        )
+        rel = registry.create_relationship(name="A_B", source=source, target=target, influence=200)
 
         assert rel.is_balanced is True
         assert rel.influence_give == 100
@@ -282,17 +268,13 @@ class TestDomainRegistryRelationships:
 
     def test_register_relationship_unbalanced_raises(self):
         """Should raise for unbalanced relationship."""
-        registry = DomainRegistry()
+        _registry = DomainRegistry()  # noqa: F841
 
         source = Domain("A")
         target = Domain("B")
 
         rel = DomainRelationship(
-            name="bad",
-            source=source,
-            target=target,
-            influence_give=50,
-            influence_receive=50
+            name="bad", source=source, target=target, influence_give=50, influence_receive=50
         )
 
         # Manually make it unbalanced (bypass validation)
@@ -305,7 +287,7 @@ class TestDomainRegistryRelationships:
                 source=source,
                 target=target,
                 influence_give=60,
-                influence_receive=40
+                influence_receive=40,
             )
 
     def test_get_relationships(self):

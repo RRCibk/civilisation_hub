@@ -6,22 +6,20 @@ Maintains META 50/50 balance validation on all operations.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar, Type
-from uuid import UUID
+from typing import Any, Generic, TypeVar
 
-from sqlalchemy import select, update, delete
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from database.models import (
     Base,
-    DomainModel,
     ConceptModel,
     ConceptRelationModel,
-    RelationModel,
+    DomainModel,
     DualityModel,
+    RelationModel,
 )
 from database.session import SessionManager, get_session_manager
-
 
 T = TypeVar("T", bound=Base)
 
@@ -43,7 +41,7 @@ class Repository(ABC, Generic[T]):
 
     @property
     @abstractmethod
-    def model_class(self) -> Type[T]:
+    def model_class(self) -> type[T]:
         """Return the model class this repository manages."""
         pass
 
@@ -163,6 +161,7 @@ class Repository(ABC, Generic[T]):
             Total count
         """
         from sqlalchemy import func
+
         stmt = select(func.count()).select_from(self.model_class)
         return session.execute(stmt).scalar() or 0
 
@@ -184,7 +183,7 @@ class DomainRepository(Repository[DomainModel]):
     """Repository for domain operations."""
 
     @property
-    def model_class(self) -> Type[DomainModel]:
+    def model_class(self) -> type[DomainModel]:
         return DomainModel
 
     def get_by_name(self, session: Session, name: str) -> DomainModel | None:
@@ -210,7 +209,7 @@ class DomainRepository(Repository[DomainModel]):
         positive_name: str = "positive",
         positive_value: float = 50.0,
         negative_name: str = "negative",
-        negative_value: float = 50.0
+        negative_value: float = 50.0,
     ) -> DomainModel:
         """
         Create domain with duality.
@@ -234,15 +233,12 @@ class DomainRepository(Repository[DomainModel]):
             positive_name=positive_name,
             positive_value=positive_value,
             negative_name=negative_name,
-            negative_value=negative_value
+            negative_value=negative_value,
         )
 
         # Create domain
         domain = DomainModel(
-            name=name,
-            domain_type=domain_type,
-            description=description,
-            duality=duality
+            name=name, domain_type=domain_type, description=description, duality=duality
         )
 
         session.add(domain)
@@ -251,12 +247,12 @@ class DomainRepository(Repository[DomainModel]):
 
     def get_active_domains(self, session: Session) -> list[DomainModel]:
         """Get all active domains."""
-        stmt = select(DomainModel).where(DomainModel.is_active == True)
+        stmt = select(DomainModel).where(DomainModel.is_active.is_(True))
         return list(session.execute(stmt).scalars().all())
 
     def get_meta_compliant_domains(self, session: Session) -> list[DomainModel]:
         """Get all META compliant domains."""
-        stmt = select(DomainModel).where(DomainModel.meta_compliant == True)
+        stmt = select(DomainModel).where(DomainModel.meta_compliant.is_(True))
         return list(session.execute(stmt).scalars().all())
 
     def get_by_type(self, session: Session, domain_type: str) -> list[DomainModel]:
@@ -301,7 +297,7 @@ class DomainRepository(Repository[DomainModel]):
             "invalid": len(invalid),
             "valid_domains": valid,
             "invalid_domains": invalid,
-            "all_compliant": len(invalid) == 0
+            "all_compliant": len(invalid) == 0,
         }
 
 
@@ -309,14 +305,11 @@ class ConceptRepository(Repository[ConceptModel]):
     """Repository for concept operations."""
 
     @property
-    def model_class(self) -> Type[ConceptModel]:
+    def model_class(self) -> type[ConceptModel]:
         return ConceptModel
 
     def get_by_name(
-        self,
-        session: Session,
-        name: str,
-        domain_id: int | None = None
+        self, session: Session, name: str, domain_id: int | None = None
     ) -> ConceptModel | None:
         """
         Get concept by name, optionally filtered by domain.
@@ -340,10 +333,7 @@ class ConceptRepository(Repository[ConceptModel]):
         return list(session.execute(stmt).scalars().all())
 
     def get_by_type(
-        self,
-        session: Session,
-        concept_type: str,
-        domain_id: int | None = None
+        self, session: Session, concept_type: str, domain_id: int | None = None
     ) -> list[ConceptModel]:
         """Get concepts by type."""
         stmt = select(ConceptModel).where(ConceptModel.concept_type == concept_type)
@@ -353,7 +343,7 @@ class ConceptRepository(Repository[ConceptModel]):
 
     def get_balanced_concepts(self, session: Session) -> list[ConceptModel]:
         """Get all balanced concepts (certainty = 50)."""
-        stmt = select(ConceptModel).where(ConceptModel.is_balanced == True)
+        stmt = select(ConceptModel).where(ConceptModel.is_balanced.is_(True))
         return list(session.execute(stmt).scalars().all())
 
     def create_concept(
@@ -364,7 +354,7 @@ class ConceptRepository(Repository[ConceptModel]):
         concept_type: str = "definition",
         description: str = "",
         certainty: float = 50.0,
-        metadata: dict | None = None
+        metadata: dict | None = None,
     ) -> ConceptModel:
         """
         Create a new concept.
@@ -388,7 +378,7 @@ class ConceptRepository(Repository[ConceptModel]):
             description=description,
             certainty=certainty,
             uncertainty=100 - certainty,
-            metadata_json=metadata
+            metadata_json=metadata,
         )
         session.add(concept)
         session.flush()
@@ -397,8 +387,11 @@ class ConceptRepository(Repository[ConceptModel]):
     def count_by_domain(self, session: Session, domain_id: int) -> int:
         """Count concepts in a domain."""
         from sqlalchemy import func
-        stmt = select(func.count()).select_from(ConceptModel).where(
-            ConceptModel.domain_id == domain_id
+
+        stmt = (
+            select(func.count())
+            .select_from(ConceptModel)
+            .where(ConceptModel.domain_id == domain_id)
         )
         return session.execute(stmt).scalar() or 0
 
@@ -407,31 +400,23 @@ class RelationRepository(Repository[RelationModel]):
     """Repository for domain relation operations."""
 
     @property
-    def model_class(self) -> Type[RelationModel]:
+    def model_class(self) -> type[RelationModel]:
         return RelationModel
 
     def get_by_domains(
-        self,
-        session: Session,
-        source_id: int,
-        target_id: int
+        self, session: Session, source_id: int, target_id: int
     ) -> RelationModel | None:
         """Get relation between two domains."""
         stmt = select(RelationModel).where(
-            RelationModel.source_domain_id == source_id,
-            RelationModel.target_domain_id == target_id
+            RelationModel.source_domain_id == source_id, RelationModel.target_domain_id == target_id
         )
         return session.execute(stmt).scalar_one_or_none()
 
-    def get_relations_for_domain(
-        self,
-        session: Session,
-        domain_id: int
-    ) -> list[RelationModel]:
+    def get_relations_for_domain(self, session: Session, domain_id: int) -> list[RelationModel]:
         """Get all relations involving a domain."""
         stmt = select(RelationModel).where(
-            (RelationModel.source_domain_id == domain_id) |
-            (RelationModel.target_domain_id == domain_id)
+            (RelationModel.source_domain_id == domain_id)
+            | (RelationModel.target_domain_id == domain_id)
         )
         return list(session.execute(stmt).scalars().all())
 
@@ -442,7 +427,7 @@ class RelationRepository(Repository[RelationModel]):
         target_domain_id: int,
         name: str,
         total_influence: float = 100.0,
-        relation_type: str = "bidirectional"
+        relation_type: str = "bidirectional",
     ) -> RelationModel:
         """
         Create a balanced relation (50/50 give/receive).
@@ -465,7 +450,7 @@ class RelationRepository(Repository[RelationModel]):
             name=name,
             relation_type=relation_type,
             influence_give=half,
-            influence_receive=half
+            influence_receive=half,
         )
         session.add(relation)
         session.flush()
@@ -473,7 +458,7 @@ class RelationRepository(Repository[RelationModel]):
 
     def get_balanced_relations(self, session: Session) -> list[RelationModel]:
         """Get all balanced relations."""
-        stmt = select(RelationModel).where(RelationModel.is_balanced == True)
+        stmt = select(RelationModel).where(RelationModel.is_balanced.is_(True))
         return list(session.execute(stmt).scalars().all())
 
 
@@ -481,18 +466,16 @@ class ConceptRelationRepository(Repository[ConceptRelationModel]):
     """Repository for concept relation operations."""
 
     @property
-    def model_class(self) -> Type[ConceptRelationModel]:
+    def model_class(self) -> type[ConceptRelationModel]:
         return ConceptRelationModel
 
     def get_relations_for_concept(
-        self,
-        session: Session,
-        concept_id: int
+        self, session: Session, concept_id: int
     ) -> list[ConceptRelationModel]:
         """Get all relations involving a concept."""
         stmt = select(ConceptRelationModel).where(
-            (ConceptRelationModel.source_concept_id == concept_id) |
-            (ConceptRelationModel.target_concept_id == concept_id)
+            (ConceptRelationModel.source_concept_id == concept_id)
+            | (ConceptRelationModel.target_concept_id == concept_id)
         )
         return list(session.execute(stmt).scalars().all())
 
@@ -503,7 +486,7 @@ class ConceptRelationRepository(Repository[ConceptRelationModel]):
         target_concept_id: int,
         relation_type: str = "derives_from",
         strength: float = 50.0,
-        bidirectional: bool = False
+        bidirectional: bool = False,
     ) -> ConceptRelationModel:
         """
         Create a concept relation.
@@ -524,7 +507,7 @@ class ConceptRelationRepository(Repository[ConceptRelationModel]):
             target_concept_id=target_concept_id,
             relation_type=relation_type,
             strength=strength,
-            bidirectional=bidirectional
+            bidirectional=bidirectional,
         )
         session.add(relation)
         session.flush()
@@ -532,22 +515,16 @@ class ConceptRelationRepository(Repository[ConceptRelationModel]):
 
 
 # Factory functions for repositories
-def get_domain_repository(
-    session_manager: SessionManager | None = None
-) -> DomainRepository:
+def get_domain_repository(session_manager: SessionManager | None = None) -> DomainRepository:
     """Get domain repository instance."""
     return DomainRepository(session_manager)
 
 
-def get_concept_repository(
-    session_manager: SessionManager | None = None
-) -> ConceptRepository:
+def get_concept_repository(session_manager: SessionManager | None = None) -> ConceptRepository:
     """Get concept repository instance."""
     return ConceptRepository(session_manager)
 
 
-def get_relation_repository(
-    session_manager: SessionManager | None = None
-) -> RelationRepository:
+def get_relation_repository(session_manager: SessionManager | None = None) -> RelationRepository:
     """Get relation repository instance."""
     return RelationRepository(session_manager)

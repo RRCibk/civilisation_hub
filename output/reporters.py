@@ -10,13 +10,13 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from output.formatters import OutputFormat, create_formatter, FormattedOutput
-from output.display import Display, ConsoleDisplay, DisplayConfig
+from output.display import ConsoleDisplay, Display
 
 
 @dataclass
 class Report:
     """Container for a generated report."""
+
     title: str
     sections: dict[str, Any] = field(default_factory=dict)
     summary: str = ""
@@ -29,7 +29,7 @@ class Report:
             "sections": self.sections,
             "summary": self.summary,
             "timestamp": self.timestamp.isoformat(),
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     def add_section(self, name: str, content: Any) -> None:
@@ -81,33 +81,41 @@ class DomainReporter(Reporter):
         proof = domain.prove_meta_meaning()
 
         report = Report(
-            title=f"Domain Report: {domain.name}",
-            metadata={"domain_id": str(domain.id)}
+            title=f"Domain Report: {domain.name}", metadata={"domain_id": str(domain.id)}
         )
 
-        report.add_section("Overview", {
-            "Name": domain.name,
-            "Type": domain.domain_type.value,
-            "Description": domain.description,
-        })
+        report.add_section(
+            "Overview",
+            {
+                "Name": domain.name,
+                "Type": domain.domain_type.value,
+                "Description": domain.description,
+            },
+        )
 
-        report.add_section("Statistics", {
-            "Total Concepts": stats["concepts"],
-            "Axioms": stats["axioms"],
-            "Relations": stats["relations"],
-            "Average Certainty": f"{stats['average_certainty']:.1f}%",
-        })
+        report.add_section(
+            "Statistics",
+            {
+                "Total Concepts": stats["concepts"],
+                "Axioms": stats["axioms"],
+                "Relations": stats["relations"],
+                "Average Certainty": f"{stats['average_certainty']:.1f}%",
+            },
+        )
 
         if stats.get("concepts_by_type"):
             report.add_section("Concepts by Type", stats["concepts_by_type"])
 
         if proof.get("duality"):
             duality = proof["duality"]
-            report.add_section("Duality", {
-                "Positive Pole": duality["positive"],
-                "Negative Pole": duality["negative"],
-                "Balanced": "Yes" if duality["balanced"] else "No",
-            })
+            report.add_section(
+                "Duality",
+                {
+                    "Positive Pole": duality["positive"],
+                    "Negative Pole": duality["negative"],
+                    "Balanced": "Yes" if duality["balanced"] else "No",
+                },
+            )
 
         report.summary = proof.get("proof", "")
         report.metadata["balanced"] = stats["balanced"]
@@ -131,25 +139,34 @@ class EquilibriumReporter(Reporter):
 
         # META Balance
         meta_balance = equilibrium.get_meta_balance()
-        report.add_section("META Balance", {
-            "Positive": f"{meta_balance['positive']:.2f}%",
-            "Negative": f"{meta_balance['negative']:.2f}%",
-            "Balanced": "Yes" if meta_balance["balanced"] else "No",
-        })
+        report.add_section(
+            "META Balance",
+            {
+                "Positive": f"{meta_balance['positive']:.2f}%",
+                "Negative": f"{meta_balance['negative']:.2f}%",
+                "Balanced": "Yes" if meta_balance["balanced"] else "No",
+            },
+        )
 
         # Operational Ratio
         op_ratio = equilibrium.get_operational_ratio()
-        report.add_section("Operational Ratio", {
-            "Structure": f"{op_ratio['structure']:.2f}%",
-            "Flexibility": f"{op_ratio['flexibility']:.2f}%",
-            "Ratio": f"{op_ratio['ratio']:.4f}",
-        })
+        report.add_section(
+            "Operational Ratio",
+            {
+                "Structure": f"{op_ratio['structure']:.2f}%",
+                "Flexibility": f"{op_ratio['flexibility']:.2f}%",
+                "Ratio": f"{op_ratio['ratio']:.4f}",
+            },
+        )
 
         # Validation
-        report.add_section("Validation", {
-            "META Valid": "Yes" if equilibrium.validate_meta() else "No",
-            "Operational Valid": "Yes" if equilibrium.validate_operational() else "No",
-        })
+        report.add_section(
+            "Validation",
+            {
+                "META Valid": "Yes" if equilibrium.validate_meta() else "No",
+                "Operational Valid": "Yes" if equilibrium.validate_operational() else "No",
+            },
+        )
 
         report.summary = "META 50/50 equilibrium enables balanced system operation."
         report.metadata["meta_valid"] = equilibrium.validate_meta()
@@ -187,33 +204,44 @@ class EvolutionReporter(Reporter):
 
         # Current state
         current = tracker.get_current_state()
-        report.add_section("Current State", {
-            "Phase": current.phase.value,
-            "Progress": f"{current.progress:.1f}%",
-            "Generation": current.generation,
-        })
+        report.add_section(
+            "Current State",
+            {
+                "Phase": current.phase.value,
+                "Progress": f"{current.progress:.1f}%",
+                "Generation": current.generation,
+            },
+        )
 
         # Metrics
         metrics = tracker.get_metrics()
-        report.add_section("Metrics", {
-            "Total Transitions": metrics.total_transitions,
-            "Phase Distribution": metrics.phase_distribution,
-            "Average Progress": f"{metrics.average_progress:.1f}%",
-        })
+        report.add_section(
+            "Metrics",
+            {
+                "Total Transitions": metrics.total_transitions,
+                "Phase Distribution": metrics.phase_distribution,
+                "Average Progress": f"{metrics.average_progress:.1f}%",
+            },
+        )
 
         # Recent changes
         recent = tracker.get_recent_deltas(5)
         if recent:
-            report.add_section("Recent Changes", [
-                {
-                    "From": d.from_state.phase.value if d.from_state else "None",
-                    "To": d.to_state.phase.value,
-                    "Delta": f"{d.progress_delta:+.1f}%"
-                }
-                for d in recent
-            ])
+            report.add_section(
+                "Recent Changes",
+                [
+                    {
+                        "From": d.from_state.phase.value if d.from_state else "None",
+                        "To": d.to_state.phase.value,
+                        "Delta": f"{d.progress_delta:+.1f}%",
+                    }
+                    for d in recent
+                ],
+            )
 
-        report.summary = f"Evolution at generation {current.generation}, phase {current.phase.value}"
+        report.summary = (
+            f"Evolution at generation {current.generation}, phase {current.phase.value}"
+        )
         return report
 
 
@@ -226,24 +254,32 @@ class ParticipationReporter(Reporter):
 
         # Overall stats
         metrics = tracker.get_metrics()
-        report.add_section("Overview", {
-            "Total Participants": metrics.total_participants,
-            "Active Participants": metrics.active_participants,
-            "Overall Engagement": f"{metrics.overall_engagement:.1f}%",
-        })
+        report.add_section(
+            "Overview",
+            {
+                "Total Participants": metrics.total_participants,
+                "Active Participants": metrics.active_participants,
+                "Overall Engagement": f"{metrics.overall_engagement:.1f}%",
+            },
+        )
 
         # Distribution
         report.add_section("Level Distribution", metrics.level_distribution)
 
         # Balance
         balance = metrics.give_receive_balance
-        report.add_section("Give/Receive Balance", {
-            "Give": f"{balance['give']:.2f}%",
-            "Receive": f"{balance['receive']:.2f}%",
-            "Balanced": "Yes" if balance["balanced"] else "No",
-        })
+        report.add_section(
+            "Give/Receive Balance",
+            {
+                "Give": f"{balance['give']:.2f}%",
+                "Receive": f"{balance['receive']:.2f}%",
+                "Balanced": "Yes" if balance["balanced"] else "No",
+            },
+        )
 
-        report.summary = f"{metrics.active_participants} active of {metrics.total_participants} total"
+        report.summary = (
+            f"{metrics.active_participants} active of {metrics.total_participants} total"
+        )
         return report
 
 
@@ -259,32 +295,38 @@ class VerificationReporter(Reporter):
         passed = sum(1 for r in results if r.is_valid)
         failed = len(results) - passed
 
-        report.add_section("Summary", {
-            "Total Claims": len(results),
-            "Passed": passed,
-            "Failed": failed,
-            "Pass Rate": f"{(passed / len(results) * 100) if results else 0:.1f}%",
-        })
+        report.add_section(
+            "Summary",
+            {
+                "Total Claims": len(results),
+                "Passed": passed,
+                "Failed": failed,
+                "Pass Rate": f"{(passed / len(results) * 100) if results else 0:.1f}%",
+            },
+        )
 
         # Failed claims
         failed_results = [r for r in results if not r.is_valid]
         if failed_results:
-            report.add_section("Failed Claims", [
-                {"Claim": r.claim.name, "Reason": r.message}
-                for r in failed_results[:10]
-            ])
+            report.add_section(
+                "Failed Claims",
+                [{"Claim": r.claim.name, "Reason": r.message} for r in failed_results[:10]],
+            )
 
         # Balance verification
         balance_results = [r for r in results if "balance" in r.claim.name.lower()]
         if balance_results:
-            report.add_section("Balance Verifications", [
-                {
-                    "Claim": r.claim.name,
-                    "Status": "✓" if r.is_valid else "✗",
-                    "Confidence": f"{r.confidence:.1f}%"
-                }
-                for r in balance_results
-            ])
+            report.add_section(
+                "Balance Verifications",
+                [
+                    {
+                        "Claim": r.claim.name,
+                        "Status": "✓" if r.is_valid else "✗",
+                        "Confidence": f"{r.confidence:.1f}%",
+                    }
+                    for r in balance_results
+                ],
+            )
 
         report.summary = f"Verification: {passed}/{len(results)} passed ({failed} failed)"
         report.metadata["all_passed"] = failed == 0
@@ -308,25 +350,34 @@ class SystemReporter(Reporter):
         report = Report(title="Civilisation Hub System Report")
 
         # System overview
-        report.add_section("System Overview", {
-            "Name": "Civilisation Hub",
-            "Version": "1.0.0",
-            "Principle": "META 50/50 Equilibrium",
-        })
+        report.add_section(
+            "System Overview",
+            {
+                "Name": "Civilisation Hub",
+                "Version": "1.0.0",
+                "Principle": "META 50/50 Equilibrium",
+            },
+        )
 
         # META Foundation
-        report.add_section("META Foundation", {
-            "META Balance": "50/50 (Absolute)",
-            "Operational Ratio": "52/48 (Enabling)",
-            "Derived From": "PI/6 ≈ 0.5236",
-        })
+        report.add_section(
+            "META Foundation",
+            {
+                "META Balance": "50/50 (Absolute)",
+                "Operational Ratio": "52/48 (Enabling)",
+                "Derived From": "PI/6 ≈ 0.5236",
+            },
+        )
 
         # Components
         if hasattr(system, "domains"):
-            report.add_section("Domains", {
-                "Count": len(system.domains),
-                "Active": sum(1 for d in system.domains if d.validate_balance()),
-            })
+            report.add_section(
+                "Domains",
+                {
+                    "Count": len(system.domains),
+                    "Active": sum(1 for d in system.domains if d.validate_balance()),
+                },
+            )
 
         report.summary = "System maintains META 50/50 equilibrium across all components."
         return report
@@ -337,27 +388,32 @@ class SystemReporter(Reporter):
         equilibrium: Any | None = None,
         evolution: Any | None = None,
         participation: Any | None = None,
-        verification: Any | None = None
+        verification: Any | None = None,
     ) -> Report:
         """Generate full system report with all components."""
         report = Report(title="Full System Report")
 
         # System section
-        report.add_section("System", {
-            "Name": "Civilisation Hub",
-            "Principle": "META 50/50",
-            "Timestamp": datetime.now().isoformat(),
-        })
+        report.add_section(
+            "System",
+            {
+                "Name": "Civilisation Hub",
+                "Principle": "META 50/50",
+                "Timestamp": datetime.now().isoformat(),
+            },
+        )
 
         # Domains section
         if domains:
             domain_summaries = []
             for domain in domains:
-                domain_summaries.append({
-                    "Name": domain.name,
-                    "Concepts": domain.concept_count,
-                    "Balanced": domain.validate_balance(),
-                })
+                domain_summaries.append(
+                    {
+                        "Name": domain.name,
+                        "Concepts": domain.concept_count,
+                        "Balanced": domain.validate_balance(),
+                    }
+                )
             report.add_section("Domains", domain_summaries)
 
         # Equilibrium section
@@ -385,8 +441,8 @@ class SystemReporter(Reporter):
         report.metadata["all_balanced"] = all_balanced
         report.summary = (
             "All systems balanced and operational."
-            if all_balanced else
-            "Some systems require balance adjustment."
+            if all_balanced
+            else "Some systems require balance adjustment."
         )
 
         return report
@@ -397,10 +453,7 @@ class SystemReporter(Reporter):
         super().render_report(report)
 
 
-def create_reporter(
-    reporter_type: str,
-    display: Display | None = None
-) -> Reporter:
+def create_reporter(reporter_type: str, display: Display | None = None) -> Reporter:
     """
     Factory function to create appropriate reporter.
 

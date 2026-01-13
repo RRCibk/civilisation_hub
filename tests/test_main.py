@@ -4,9 +4,9 @@ Tests for main.py CLI
 Tests for command line interface and CivilisationHub class.
 """
 
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from io import StringIO
 
 from main import (
     CivilisationHub,
@@ -66,7 +66,7 @@ class TestCivilisationHub:
         ratio = hub.get_operational_ratio()
         assert ratio["structure"] == 52.0
         assert ratio["flexibility"] == 48.0
-        assert abs(ratio["ratio"] - 52/48) < 0.001
+        assert abs(ratio["ratio"] - 52 / 48) < 0.001
 
     def test_is_meta_balanced(self):
         """Test is_meta_balanced method."""
@@ -284,8 +284,9 @@ class TestMainFunction:
     @pytest.fixture(autouse=True)
     def reset_db(self):
         """Reset database before each test."""
-        from database.engine import reset_engine, get_engine
+        from database.engine import get_engine, reset_engine
         from database.session import reset_session_manager
+
         reset_engine()
         reset_session_manager()
         # Use in-memory database for tests
@@ -397,8 +398,9 @@ class TestMainIntegration:
     @pytest.fixture(autouse=True)
     def reset_db(self):
         """Reset database before each test."""
-        from database.engine import reset_engine, get_engine
+        from database.engine import get_engine, reset_engine
         from database.session import reset_session_manager
+
         reset_engine()
         reset_session_manager()
         # Use in-memory database for tests

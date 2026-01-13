@@ -10,24 +10,22 @@ from typing import Any, Optional
 from uuid import uuid4
 
 from sqlalchemy import (
+    JSON,
     Boolean,
-    Column,
     DateTime,
-    Enum,
     Float,
     ForeignKey,
     Integer,
-    JSON,
     String,
     Text,
     event,
 )
-from sqlalchemy.dialects.sqlite import JSON as SQLiteJSON
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
     """Base class for all database models."""
+
     pass
 
 
@@ -36,6 +34,7 @@ class DualityModel(Base):
     Model for domain dualities.
     Ensures META 50/50 balance on save.
     """
+
     __tablename__ = "dualities"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -47,10 +46,12 @@ class DualityModel(Base):
     negative_value: Mapped[float] = mapped_column(Float, default=50.0)
     is_balanced: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationship
-    domain_id: Mapped[Optional[int]] = mapped_column(ForeignKey("domains.id"), nullable=True)
+    domain_id: Mapped[int | None] = mapped_column(ForeignKey("domains.id"), nullable=True)
     domain: Mapped[Optional["DomainModel"]] = relationship("DomainModel", back_populates="duality")
 
     def __repr__(self) -> str:
@@ -82,6 +83,7 @@ class DomainModel(Base):
     Model for knowledge domains.
     Each domain has a duality maintaining META 50/50.
     """
+
     __tablename__ = "domains"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -92,33 +94,30 @@ class DomainModel(Base):
     state: Mapped[str] = mapped_column(String(50), default="inactive")
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
     meta_compliant: Mapped[bool] = mapped_column(Boolean, default=True)
-    metadata_json: Mapped[Optional[str]] = mapped_column(JSON, nullable=True)
+    metadata_json: Mapped[str | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
     duality: Mapped[Optional["DualityModel"]] = relationship(
-        "DualityModel",
-        back_populates="domain",
-        uselist=False,
-        cascade="all, delete-orphan"
+        "DualityModel", back_populates="domain", uselist=False, cascade="all, delete-orphan"
     )
     concepts: Mapped[list["ConceptModel"]] = relationship(
-        "ConceptModel",
-        back_populates="domain",
-        cascade="all, delete-orphan"
+        "ConceptModel", back_populates="domain", cascade="all, delete-orphan"
     )
     source_relations: Mapped[list["RelationModel"]] = relationship(
         "RelationModel",
         foreign_keys="RelationModel.source_domain_id",
         back_populates="source_domain",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
     )
     target_relations: Mapped[list["RelationModel"]] = relationship(
         "RelationModel",
         foreign_keys="RelationModel.target_domain_id",
         back_populates="target_domain",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:
@@ -158,6 +157,7 @@ class ConceptModel(Base):
     Model for concepts within a domain.
     Concepts maintain certainty/uncertainty balance.
     """
+
     __tablename__ = "concepts"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -168,9 +168,11 @@ class ConceptModel(Base):
     certainty: Mapped[float] = mapped_column(Float, default=50.0)
     uncertainty: Mapped[float] = mapped_column(Float, default=50.0)
     is_balanced: Mapped[bool] = mapped_column(Boolean, default=True)
-    metadata_json: Mapped[Optional[str]] = mapped_column(JSON, nullable=True)
+    metadata_json: Mapped[str | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Foreign key
     domain_id: Mapped[int] = mapped_column(ForeignKey("domains.id"), nullable=False)
@@ -181,13 +183,13 @@ class ConceptModel(Base):
         "ConceptRelationModel",
         foreign_keys="ConceptRelationModel.source_concept_id",
         back_populates="source_concept",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
     )
     target_relations: Mapped[list["ConceptRelationModel"]] = relationship(
         "ConceptRelationModel",
         foreign_keys="ConceptRelationModel.target_concept_id",
         back_populates="target_concept",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:
@@ -222,6 +224,7 @@ class ConceptRelationModel(Base):
     """
     Model for relations between concepts.
     """
+
     __tablename__ = "concept_relations"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -229,7 +232,7 @@ class ConceptRelationModel(Base):
     relation_type: Mapped[str] = mapped_column(String(50), default="derives_from")
     strength: Mapped[float] = mapped_column(Float, default=50.0)
     bidirectional: Mapped[bool] = mapped_column(Boolean, default=False)
-    metadata_json: Mapped[Optional[str]] = mapped_column(JSON, nullable=True)
+    metadata_json: Mapped[str | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     # Foreign keys
@@ -238,14 +241,10 @@ class ConceptRelationModel(Base):
 
     # Relationships
     source_concept: Mapped["ConceptModel"] = relationship(
-        "ConceptModel",
-        foreign_keys=[source_concept_id],
-        back_populates="source_relations"
+        "ConceptModel", foreign_keys=[source_concept_id], back_populates="source_relations"
     )
     target_concept: Mapped["ConceptModel"] = relationship(
-        "ConceptModel",
-        foreign_keys=[target_concept_id],
-        back_populates="target_relations"
+        "ConceptModel", foreign_keys=[target_concept_id], back_populates="target_relations"
     )
 
     def __repr__(self) -> str:
@@ -268,6 +267,7 @@ class RelationModel(Base):
     Model for relations between domains.
     Maintains balanced give/receive influence.
     """
+
     __tablename__ = "domain_relations"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -277,7 +277,7 @@ class RelationModel(Base):
     influence_give: Mapped[float] = mapped_column(Float, default=50.0)
     influence_receive: Mapped[float] = mapped_column(Float, default=50.0)
     is_balanced: Mapped[bool] = mapped_column(Boolean, default=True)
-    metadata_json: Mapped[Optional[str]] = mapped_column(JSON, nullable=True)
+    metadata_json: Mapped[str | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     # Foreign keys
@@ -286,14 +286,10 @@ class RelationModel(Base):
 
     # Relationships
     source_domain: Mapped["DomainModel"] = relationship(
-        "DomainModel",
-        foreign_keys=[source_domain_id],
-        back_populates="source_relations"
+        "DomainModel", foreign_keys=[source_domain_id], back_populates="source_relations"
     )
     target_domain: Mapped["DomainModel"] = relationship(
-        "DomainModel",
-        foreign_keys=[target_domain_id],
-        back_populates="target_relations"
+        "DomainModel", foreign_keys=[target_domain_id], back_populates="target_relations"
     )
 
     def __repr__(self) -> str:

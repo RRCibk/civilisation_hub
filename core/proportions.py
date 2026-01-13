@@ -12,7 +12,6 @@ from typing import Any
 
 from core.equilibrium import MetaEquilibrium
 
-
 # Fundamental Constants
 PI_OVER_6 = math.pi / 6  # 0.5235987755982989
 PI_OVER_6_ROUNDED = 0.5236
@@ -21,20 +20,20 @@ PI_OVER_6_ROUNDED = 0.5236
 class ProportionConstants:
     """Fundamental proportion constants derived from PI/6."""
 
-    PI_6 = math.pi / 6                    # ~0.5236 (30 degrees in radians)
-    PI_6_DEGREES = 30.0                   # Equivalent angle in degrees
+    PI_6 = math.pi / 6  # ~0.5236 (30 degrees in radians)
+    PI_6_DEGREES = 30.0  # Equivalent angle in degrees
 
     # Operational ratio derived from PI/6
     # PI/6 ≈ 0.5236 maps to 52.36% structure
-    OPERATIONAL_STRUCTURE = 0.52          # Rounded for practical use
-    OPERATIONAL_FLEXIBILITY = 0.48        # Complement to structure
+    OPERATIONAL_STRUCTURE = 0.52  # Rounded for practical use
+    OPERATIONAL_FLEXIBILITY = 0.48  # Complement to structure
     OPERATIONAL_RATIO = (52, 48)
 
     # PI/6 relationship to operational ratio
     # sin(PI/6) = 0.5 (META balance)
     # cos(PI/6) = sqrt(3)/2 ≈ 0.866 (structure dominance)
-    SIN_PI_6 = 0.5                        # Exact: sin(30°) = 0.5
-    COS_PI_6 = math.sqrt(3) / 2           # ~0.866
+    SIN_PI_6 = 0.5  # Exact: sin(30°) = 0.5
+    COS_PI_6 = math.sqrt(3) / 2  # ~0.866
 
     # Golden relationships
     STRUCTURE_FLEXIBILITY_RATIO = 52 / 48  # ~1.0833
@@ -46,6 +45,7 @@ class Ratio:
     A ratio that can verify its META 50/50 meaning.
     Stores numerator/denominator and provides validation.
     """
+
     numerator: float
     denominator: float
     name: str = "unnamed"
@@ -63,10 +63,7 @@ class Ratio:
     def percentage(self) -> tuple[float, float]:
         """Return as percentage pair (num%, denom%)."""
         total = abs(self.numerator) + abs(self.denominator)
-        return (
-            abs(self.numerator) / total * 100,
-            abs(self.denominator) / total * 100
-        )
+        return (abs(self.numerator) / total * 100, abs(self.denominator) / total * 100)
 
     @property
     def inverse(self) -> "Ratio":
@@ -109,8 +106,7 @@ class OperationalRatio:
         actual_ratio = self._structure / total * 100
         if abs(actual_ratio - 52) > 0.01:
             raise ValueError(
-                f"Operational ratio must be 52/48, got "
-                f"{actual_ratio:.2f}/{100 - actual_ratio:.2f}"
+                f"Operational ratio must be 52/48, got {actual_ratio:.2f}/{100 - actual_ratio:.2f}"
             )
 
     @property
@@ -130,10 +126,7 @@ class OperationalRatio:
     def as_percentage(self) -> tuple[float, float]:
         """Return as percentage tuple."""
         total = self._structure + self._flexibility
-        return (
-            self._structure / total * 100,
-            self._flexibility / total * 100
-        )
+        return (self._structure / total * 100, self._flexibility / total * 100)
 
     @classmethod
     def from_total(cls, total: float) -> "OperationalRatio":
@@ -171,7 +164,7 @@ class OperationalRatio:
             "proof": (
                 "52/48 asymmetry creates dynamic tension that "
                 "enables META 50/50 balance to function"
-            )
+            ),
         }
 
     def __repr__(self) -> str:
@@ -228,7 +221,7 @@ class Pi6Proportion:
             "sin_pi_6": self._sin,
             "sin_equals_half": abs(self._sin - 0.5) < 1e-10,  # Exact within floating point
             "meta_connection": "sin(PI/6) = 0.5 proves META 50/50 has geometric basis",
-            "operational_derivation": f"PI/6 ≈ 0.5236 → 52% structure"
+            "operational_derivation": "PI/6 ≈ 0.5236 → 52% structure",
         }
 
     def __repr__(self) -> str:
@@ -252,20 +245,13 @@ class ProportionValidator:
         """
         return ratio.is_balanced()
 
-    def verify_enables_meta(
-        self,
-        ratio: Ratio,
-        expected: tuple[int, int] = (52, 48)
-    ) -> bool:
+    def verify_enables_meta(self, ratio: Ratio, expected: tuple[int, int] = (52, 48)) -> bool:
         """
         Verify a ratio enables META 50/50 (operational level).
         Operational ratios like 52/48 enable META to function.
         """
         pct = ratio.percentage
-        return (
-            abs(pct[0] - expected[0]) < 0.01 and
-            abs(pct[1] - expected[1]) < 0.01
-        )
+        return abs(pct[0] - expected[0]) < 0.01 and abs(pct[1] - expected[1]) < 0.01
 
     def validate_ratio(self, ratio: Ratio, level: str = "meta") -> dict[str, Any]:
         """
@@ -296,7 +282,7 @@ class ProportionValidator:
             "level": level,
             "expected": f"{expected[0]}/{expected[1]}",
             "is_valid": is_valid,
-            "distance_from_expected": abs(pct[0] - expected[0])
+            "distance_from_expected": abs(pct[0] - expected[0]),
         }
 
         if is_valid:
@@ -308,10 +294,7 @@ class ProportionValidator:
         return result
 
     def validate_pair_maintains_meta(
-        self,
-        positive: float,
-        negative: float,
-        name: str = "pair"
+        self, positive: float, negative: float, name: str = "pair"
     ) -> dict[str, Any]:
         """
         Validate that a positive/negative pair maintains META 50/50.
@@ -326,9 +309,10 @@ class ProportionValidator:
             "balance": f"{balance[0]:.2f}/{balance[1]:.2f}",
             "maintains_meta": is_balanced,
             "proof" if is_balanced else "violation": (
-                "Pair maintains META 50/50 equilibrium" if is_balanced
+                "Pair maintains META 50/50 equilibrium"
+                if is_balanced
                 else f"Pair violates META 50/50: got {balance[0]:.2f}/{balance[1]:.2f}"
-            )
+            ),
         }
 
     def derive_complement(self, value: float, level: str = "meta") -> float:
@@ -366,7 +350,7 @@ class ProportionValidator:
                 {"name": r.name, "value": r.value, "balanced": r.is_balanced()}
                 for r in self._validated_ratios
             ],
-            "proof": "All validated ratios maintain their designated equilibrium level"
+            "proof": "All validated ratios maintain their designated equilibrium level",
         }
 
 
@@ -421,16 +405,18 @@ def ratio_to_meta_meaning(numerator: float, denominator: float) -> dict[str, Any
     return {
         "numerator": numerator,
         "denominator": denominator,
-        "ratio_value": numerator / denominator if denominator != 0 else float('inf'),
+        "ratio_value": numerator / denominator if denominator != 0 else float("inf"),
         "percentage": f"{pct_num:.2f}/{pct_den:.2f}",
         "is_meta_50_50": is_meta_balanced,
         "is_operational_52_48": is_operational,
         "distance_from_meta": abs(pct_num - 50),
         "meta_meaning": (
-            "Maintains META 50/50 balance" if is_meta_balanced
-            else "Enables META through 52/48 operational ratio" if is_operational
+            "Maintains META 50/50 balance"
+            if is_meta_balanced
+            else "Enables META through 52/48 operational ratio"
+            if is_operational
             else f"Deviates from META by {abs(pct_num - 50):.2f}%"
-        )
+        ),
     }
 
 
@@ -464,7 +450,8 @@ def verify_ratio_chain_maintains_meta(*ratios: Ratio) -> dict[str, Any]:
         "product_balanced": combined.is_balanced(),
         "maintains_meta": combined.is_balanced(),
         "proof": (
-            "Chain product maintains META 50/50" if combined.is_balanced()
+            "Chain product maintains META 50/50"
+            if combined.is_balanced()
             else f"Chain product deviates: {combined.percentage[0]:.2f}/{combined.percentage[1]:.2f}"
-        )
+        ),
     }

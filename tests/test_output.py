@@ -4,51 +4,45 @@ Tests for Output Module
 Tests for formatters, display, and reporters.
 """
 
-import pytest
 import json
 from datetime import datetime
 
-from output.formatters import (
-    OutputFormat,
-    Formatter,
-    FormattedOutput,
-    TextFormatter,
-    JsonFormatter,
-    MarkdownFormatter,
-    TableFormatter,
-    create_formatter,
-)
+import pytest
+
 from output.display import (
-    Display,
-    ConsoleDisplay,
     BufferedDisplay,
+    ConsoleDisplay,
     DisplayConfig,
     DisplayStyle,
     create_display,
 )
+from output.formatters import (
+    FormattedOutput,
+    JsonFormatter,
+    MarkdownFormatter,
+    OutputFormat,
+    TableFormatter,
+    TextFormatter,
+    create_formatter,
+)
 from output.reporters import (
-    Report,
-    Reporter,
     DomainReporter,
-    EquilibriumReporter,
+    Report,
     SystemReporter,
     create_reporter,
 )
 
-
 # =============================================================================
 # FormattedOutput Tests
 # =============================================================================
+
 
 class TestFormattedOutput:
     """Tests for FormattedOutput container."""
 
     def test_creation(self):
         """Test basic creation."""
-        output = FormattedOutput(
-            content="test content",
-            format=OutputFormat.TEXT
-        )
+        output = FormattedOutput(content="test content", format=OutputFormat.TEXT)
         assert output.content == "test content"
         assert output.format == OutputFormat.TEXT
 
@@ -60,9 +54,7 @@ class TestFormattedOutput:
     def test_to_dict(self):
         """Test dictionary conversion."""
         output = FormattedOutput(
-            content="test",
-            format=OutputFormat.JSON,
-            metadata={"key": "value"}
+            content="test", format=OutputFormat.JSON, metadata={"key": "value"}
         )
         d = output.to_dict()
         assert d["content"] == "test"
@@ -79,6 +71,7 @@ class TestFormattedOutput:
 # =============================================================================
 # TextFormatter Tests
 # =============================================================================
+
 
 class TestTextFormatter:
     """Tests for TextFormatter."""
@@ -105,11 +98,7 @@ class TestTextFormatter:
     def test_format_nested_dict(self):
         """Test formatting nested dictionary."""
         formatter = TextFormatter()
-        data = {
-            "outer": {
-                "inner": "value"
-            }
-        }
+        data = {"outer": {"inner": "value"}}
         output = formatter.format_dict(data)
         assert "outer:" in output.content
         assert "inner: value" in output.content
@@ -147,6 +136,7 @@ class TestTextFormatter:
 # =============================================================================
 # JsonFormatter Tests
 # =============================================================================
+
 
 class TestJsonFormatter:
     """Tests for JsonFormatter."""
@@ -198,6 +188,7 @@ class TestJsonFormatter:
 # MarkdownFormatter Tests
 # =============================================================================
 
+
 class TestMarkdownFormatter:
     """Tests for MarkdownFormatter."""
 
@@ -234,6 +225,7 @@ class TestMarkdownFormatter:
 # =============================================================================
 # TableFormatter Tests
 # =============================================================================
+
 
 class TestTableFormatter:
     """Tests for TableFormatter."""
@@ -282,6 +274,7 @@ class TestTableFormatter:
 # create_formatter Tests
 # =============================================================================
 
+
 class TestCreateFormatter:
     """Tests for formatter factory."""
 
@@ -315,6 +308,7 @@ class TestCreateFormatter:
 # DisplayConfig Tests
 # =============================================================================
 
+
 class TestDisplayConfig:
     """Tests for DisplayConfig."""
 
@@ -329,9 +323,7 @@ class TestDisplayConfig:
     def test_custom_config(self):
         """Test custom configuration."""
         config = DisplayConfig(
-            style=DisplayStyle.DETAILED,
-            format=OutputFormat.JSON,
-            show_timestamps=True
+            style=DisplayStyle.DETAILED, format=OutputFormat.JSON, show_timestamps=True
         )
         assert config.style == DisplayStyle.DETAILED
         assert config.format == OutputFormat.JSON
@@ -341,6 +333,7 @@ class TestDisplayConfig:
 # =============================================================================
 # BufferedDisplay Tests
 # =============================================================================
+
 
 class TestBufferedDisplay:
     """Tests for BufferedDisplay."""
@@ -399,6 +392,7 @@ class TestBufferedDisplay:
 # ConsoleDisplay Tests
 # =============================================================================
 
+
 class TestConsoleDisplay:
     """Tests for ConsoleDisplay."""
 
@@ -436,6 +430,7 @@ class TestConsoleDisplay:
 # create_display Tests
 # =============================================================================
 
+
 class TestCreateDisplay:
     """Tests for display factory."""
 
@@ -459,6 +454,7 @@ class TestCreateDisplay:
 # Report Tests
 # =============================================================================
 
+
 class TestReport:
     """Tests for Report class."""
 
@@ -477,10 +473,7 @@ class TestReport:
 
     def test_to_dict(self):
         """Test dictionary conversion."""
-        report = Report(
-            title="Test",
-            summary="Test summary"
-        )
+        report = Report(title="Test", summary="Test summary")
         report.add_section("Data", {"x": 1})
 
         d = report.to_dict()
@@ -492,6 +485,7 @@ class TestReport:
 # =============================================================================
 # DomainReporter Tests
 # =============================================================================
+
 
 class TestDomainReporter:
     """Tests for DomainReporter."""
@@ -519,15 +513,11 @@ class TestDomainReporter:
             "relations": 5,
             "average_certainty": 75.0,
             "balanced": True,
-            "concepts_by_type": {"definition": 5, "theorem": 5}
+            "concepts_by_type": {"definition": 5, "theorem": 5},
         }
         mock_domain.prove_meta_meaning.return_value = {
-            "duality": {
-                "positive": "pos",
-                "negative": "neg",
-                "balanced": True
-            },
-            "proof": "Domain is balanced"
+            "duality": {"positive": "pos", "negative": "neg", "balanced": True},
+            "proof": "Domain is balanced",
         }
 
         reporter = DomainReporter(BufferedDisplay())
@@ -541,6 +531,7 @@ class TestDomainReporter:
 # =============================================================================
 # SystemReporter Tests
 # =============================================================================
+
 
 class TestSystemReporter:
     """Tests for SystemReporter."""
@@ -568,6 +559,7 @@ class TestSystemReporter:
 # create_reporter Tests
 # =============================================================================
 
+
 class TestCreateReporter:
     """Tests for reporter factory."""
 
@@ -591,6 +583,7 @@ class TestCreateReporter:
 # =============================================================================
 # Integration Tests
 # =============================================================================
+
 
 class TestOutputIntegration:
     """Integration tests for output module."""
@@ -625,6 +618,7 @@ class TestOutputIntegration:
         reporter = SystemReporter(display)
 
         from unittest.mock import MagicMock
+
         mock_system = MagicMock()
         mock_system.domains = []
 

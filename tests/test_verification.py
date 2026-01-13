@@ -5,28 +5,26 @@ Tests for verification and validation with META 50/50 awareness.
 """
 
 import pytest
-from uuid import uuid4
 
+from verification.validators import (
+    BalanceValidator,
+    CompositeValidator,
+    MetaEquilibriumValidator,
+    ProportionRatioValidator,
+    RangeValidator,
+    SchemaValidator,
+    ValidationIssue,
+    ValidationReport,
+    ValidationSeverity,
+)
 from verification.verifier import (
-    VerificationStatus,
-    VerificationType,
-    ConfidenceLevel,
+    VerificationChain,
     VerificationClaim,
     VerificationResult,
     VerificationRule,
+    VerificationStatus,
+    VerificationType,
     Verifier,
-    VerificationChain,
-)
-from verification.validators import (
-    ValidationSeverity,
-    ValidationIssue,
-    ValidationReport,
-    BalanceValidator,
-    ProportionRatioValidator,
-    SchemaValidator,
-    RangeValidator,
-    CompositeValidator,
-    MetaEquilibriumValidator,
 )
 
 
@@ -55,11 +53,7 @@ class TestVerificationClaim:
     """Tests for VerificationClaim dataclass."""
 
     def test_create_claim(self):
-        claim = VerificationClaim(
-            statement="Test claim",
-            evidence_for=50,
-            evidence_against=50
-        )
+        claim = VerificationClaim(statement="Test claim", evidence_for=50, evidence_against=50)
         assert claim.statement == "Test claim"
         assert claim.is_balanced is True
 
@@ -87,9 +81,7 @@ class TestVerificationResult:
 
     def test_create_result(self):
         result = VerificationResult(
-            status=VerificationStatus.VERIFIED,
-            score_verified=100,
-            score_falsified=0
+            status=VerificationStatus.VERIFIED, score_verified=100, score_falsified=0
         )
         assert result.status == VerificationStatus.VERIFIED
 
@@ -101,9 +93,7 @@ class TestVerificationResult:
 
     def test_to_dict(self):
         result = VerificationResult(
-            status=VerificationStatus.VERIFIED,
-            score_verified=100,
-            score_falsified=0
+            status=VerificationStatus.VERIFIED, score_verified=100, score_falsified=0
         )
         d = result.to_dict()
         assert "status" in d
@@ -118,7 +108,7 @@ class TestVerificationRule:
             name="test_rule",
             verification_type=VerificationType.BALANCE,
             validator=lambda x: (True, 100, 0),
-            description="Test"
+            description="Test",
         )
         assert rule.name == "test_rule"
 
@@ -126,7 +116,7 @@ class TestVerificationRule:
         rule = VerificationRule(
             name="always_pass",
             verification_type=VerificationType.BALANCE,
-            validator=lambda x: (True, 100, 0)
+            validator=lambda x: (True, 100, 0),
         )
         passed, score_for, score_against = rule.verify({})
         assert passed is True
@@ -142,10 +132,7 @@ class TestVerifier:
 
     def test_create_claim(self):
         verifier = Verifier()
-        claim = verifier.create_claim(
-            "Test statement",
-            VerificationType.BALANCE
-        )
+        claim = verifier.create_claim("Test statement", VerificationType.BALANCE)
         assert verifier.claim_count == 1
         assert claim.statement == "Test statement"
 
@@ -170,7 +157,7 @@ class TestVerifier:
         rule = VerificationRule(
             name="custom",
             verification_type=VerificationType.INTEGRITY,
-            validator=lambda x: (True, 100, 0)
+            validator=lambda x: (True, 100, 0),
         )
         verifier.register_rule(rule)
         assert verifier.rule_count == initial_count + 1
@@ -180,10 +167,10 @@ class TestVerifier:
         c1 = verifier.create_claim("A", VerificationType.BALANCE)
         c2 = verifier.create_claim("B", VerificationType.BALANCE)
 
-        results = verifier.batch_verify([
-            (c1.id, {"positive": 50, "negative": 50}),
-            (c2.id, {"positive": 50, "negative": 50})
-        ], "meta_balance")
+        results = verifier.batch_verify(
+            [(c1.id, {"positive": 50, "negative": 50}), (c2.id, {"positive": 50, "negative": 50})],
+            "meta_balance",
+        )
 
         assert len(results) == 2
         assert all(r.status == VerificationStatus.VERIFIED for r in results)
@@ -224,11 +211,7 @@ class TestVerificationChain:
     def test_execute_chain_pass(self):
         verifier = Verifier()
         chain = VerificationChain("test", verifier)
-        chain.add_step(
-            "balance_check",
-            lambda x: x,
-            "meta_balance"
-        )
+        chain.add_step("balance_check", lambda x: x, "meta_balance")
 
         passed, results = chain.execute({"positive": 50, "negative": 50})
         assert passed is True
@@ -271,17 +254,13 @@ class TestValidationIssue:
             code="TEST_ERROR",
             message="Test error message",
             severity=ValidationSeverity.ERROR,
-            field="test_field"
+            field="test_field",
         )
         assert issue.code == "TEST_ERROR"
         assert issue.severity == ValidationSeverity.ERROR
 
     def test_to_dict(self):
-        issue = ValidationIssue(
-            code="TEST",
-            message="Test",
-            severity=ValidationSeverity.WARNING
-        )
+        issue = ValidationIssue(code="TEST", message="Test", severity=ValidationSeverity.WARNING)
         d = issue.to_dict()
         assert d["code"] == "TEST"
         assert d["severity"] == "warning"
@@ -292,17 +271,14 @@ class TestValidationReport:
 
     def test_create_report(self):
         from datetime import datetime
-        report = ValidationReport(
-            valid=True,
-            issues=[],
-            score=100.0,
-            timestamp=datetime.now()
-        )
+
+        report = ValidationReport(valid=True, issues=[], score=100.0, timestamp=datetime.now())
         assert report.valid is True
         assert report.score == 100.0
 
     def test_error_count(self):
         from datetime import datetime
+
         issues = [
             ValidationIssue("E1", "Error 1", ValidationSeverity.ERROR),
             ValidationIssue("E2", "Error 2", ValidationSeverity.ERROR),
@@ -420,11 +396,7 @@ class TestCompositeValidator:
 
     def test_validate_all_pass(self):
         composite = CompositeValidator()
-        composite.add_validator(
-            "balance",
-            BalanceValidator(),
-            lambda x: x["balance"]
-        )
+        composite.add_validator("balance", BalanceValidator(), lambda x: x["balance"])
 
         data = {"balance": {"positive": 50, "negative": 50}}
         report = composite.validate(data)
@@ -474,10 +446,7 @@ class TestIntegration:
         # Create and verify multiple claims
         claims = []
         for i in range(5):
-            claim = verifier.create_claim(
-                f"Claim {i}",
-                VerificationType.BALANCE
-            )
+            claim = verifier.create_claim(f"Claim {i}", VerificationType.BALANCE)
             claims.append(claim)
 
         # Verify with mixed results
@@ -498,16 +467,14 @@ class TestIntegration:
             report = balance_validator.validate(data)
             return report.valid, report.score, 100 - report.score
 
-        verifier.register_rule(VerificationRule(
-            "custom_balance",
-            VerificationType.BALANCE,
-            validate_with_balance
-        ))
+        verifier.register_rule(
+            VerificationRule("custom_balance", VerificationType.BALANCE, validate_with_balance)
+        )
 
         result = verifier.verify_claim(
             verifier.create_claim("Test", VerificationType.BALANCE).id,
             {"positive": 50, "negative": 50},
-            "custom_balance"
+            "custom_balance",
         )
 
         assert result.status == VerificationStatus.VERIFIED
@@ -517,9 +484,7 @@ class TestIntegration:
         composite = CompositeValidator("full_system")
         composite.add_validator("balance", BalanceValidator())
         composite.add_validator(
-            "range",
-            RangeValidator(min_value=0, max_value=200),
-            lambda x: x.get("total", 0)
+            "range", RangeValidator(min_value=0, max_value=200), lambda x: x.get("total", 0)
         )
 
         # Test with valid data

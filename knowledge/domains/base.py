@@ -9,31 +9,31 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 from uuid import UUID, uuid4
 
 from core.equilibrium import MetaEquilibrium
-from core.proportions import calculate_50_50, calculate_52_48
-from models.domain import Domain, DomainType, DomainDuality, DomainPole
-
+from models.domain import Domain, DomainType
 
 T = TypeVar("T")
 
 
 class ConceptType(Enum):
     """Types of concepts within a domain."""
-    AXIOM = "axiom"              # Fundamental truth
-    THEOREM = "theorem"          # Proven statement
-    HYPOTHESIS = "hypothesis"    # Unproven statement
-    DEFINITION = "definition"    # Term definition
-    PRINCIPLE = "principle"      # Guiding principle
-    LAW = "law"                  # Established law
-    THEORY = "theory"            # Comprehensive theory
-    MODEL = "model"              # Conceptual model
+
+    AXIOM = "axiom"  # Fundamental truth
+    THEOREM = "theorem"  # Proven statement
+    HYPOTHESIS = "hypothesis"  # Unproven statement
+    DEFINITION = "definition"  # Term definition
+    PRINCIPLE = "principle"  # Guiding principle
+    LAW = "law"  # Established law
+    THEORY = "theory"  # Comprehensive theory
+    MODEL = "model"  # Conceptual model
 
 
 class RelationType(Enum):
     """Types of relationships between concepts."""
+
     DERIVES_FROM = "derives_from"
     IMPLIES = "implies"
     CONTRADICTS = "contradicts"
@@ -50,12 +50,13 @@ class Concept:
     A concept within a knowledge domain.
     Concepts maintain balance between certainty and uncertainty.
     """
+
     id: UUID = field(default_factory=uuid4)
     name: str = ""
     concept_type: ConceptType = ConceptType.DEFINITION
     description: str = ""
-    certainty: float = 50.0       # 0-100, balanced with uncertainty
-    uncertainty: float = 50.0     # 0-100, balanced with certainty
+    certainty: float = 50.0  # 0-100, balanced with uncertainty
+    uncertainty: float = 50.0  # 0-100, balanced with certainty
     domain_id: UUID | None = None
     created_at: datetime = field(default_factory=datetime.now)
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -87,11 +88,12 @@ class Concept:
 @dataclass
 class ConceptRelation:
     """Relationship between two concepts."""
+
     id: UUID = field(default_factory=uuid4)
     source_id: UUID = field(default_factory=uuid4)
     target_id: UUID = field(default_factory=uuid4)
     relation_type: RelationType = RelationType.DERIVES_FROM
-    strength: float = 50.0        # Relationship strength (0-100)
+    strength: float = 50.0  # Relationship strength (0-100)
     bidirectional: bool = False
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -107,7 +109,7 @@ class KnowledgeDomain(ABC):
         name: str,
         domain_type: DomainType = DomainType.FUNDAMENTAL,
         description: str = "",
-        meta_equilibrium: MetaEquilibrium | None = None
+        meta_equilibrium: MetaEquilibrium | None = None,
     ):
         self._id = uuid4()
         self._name = name
@@ -195,16 +197,13 @@ class KnowledgeDomain(ABC):
     def get_relations(self, concept_id: UUID) -> list[ConceptRelation]:
         """Get all relations involving a concept."""
         return [
-            r for r in self._relations.values()
+            r
+            for r in self._relations.values()
             if r.source_id == concept_id or r.target_id == concept_id
         ]
 
     def create_concept(
-        self,
-        name: str,
-        concept_type: ConceptType,
-        description: str = "",
-        certainty: float = 50.0
+        self, name: str, concept_type: ConceptType, description: str = "", certainty: float = 50.0
     ) -> Concept:
         """Create and add a concept."""
         concept = Concept(
@@ -212,7 +211,7 @@ class KnowledgeDomain(ABC):
             concept_type=concept_type,
             description=description,
             certainty=certainty,
-            uncertainty=100 - certainty
+            uncertainty=100 - certainty,
         )
         self.add_concept(concept)
         return concept
@@ -222,17 +221,14 @@ class KnowledgeDomain(ABC):
         source: Concept | UUID,
         target: Concept | UUID,
         relation_type: RelationType,
-        strength: float = 50.0
+        strength: float = 50.0,
     ) -> ConceptRelation:
         """Create and add a relation."""
         source_id = source.id if isinstance(source, Concept) else source
         target_id = target.id if isinstance(target, Concept) else target
 
         relation = ConceptRelation(
-            source_id=source_id,
-            target_id=target_id,
-            relation_type=relation_type,
-            strength=strength
+            source_id=source_id, target_id=target_id, relation_type=relation_type, strength=strength
         )
         self.add_relation(relation)
         return relation
@@ -262,7 +258,7 @@ class KnowledgeDomain(ABC):
             "relations": len(self._relations),
             "concepts_by_type": concepts_by_type,
             "average_certainty": avg_certainty,
-            "balanced": self.validate_balance()
+            "balanced": self.validate_balance(),
         }
 
     def prove_meta_meaning(self) -> dict[str, Any]:
@@ -275,7 +271,7 @@ class KnowledgeDomain(ABC):
                 "positive": self._domain.duality.positive.name,
                 "negative": self._domain.duality.negative.name,
                 "balanced": self._domain.duality.is_balanced,
-                "balance": self._domain.duality.balance
+                "balance": self._domain.duality.balance,
             }
 
         return {
@@ -287,7 +283,7 @@ class KnowledgeDomain(ABC):
                 f"Domain '{self._name}' maintains META 50/50 equilibrium"
                 if self.validate_balance()
                 else f"Domain '{self._name}' requires balance adjustment"
-            )
+            ),
         }
 
     def __repr__(self) -> str:

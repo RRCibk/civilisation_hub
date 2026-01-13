@@ -6,21 +6,21 @@ Console display and output rendering with META 50/50 balance awareness.
 
 import sys
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from datetime import datetime
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, TextIO
 
 from output.formatters import (
-    OutputFormat,
-    Formatter,
     FormattedOutput,
+    Formatter,
+    OutputFormat,
     create_formatter,
 )
 
 
 class DisplayStyle(Enum):
     """Display style presets."""
+
     MINIMAL = "minimal"
     STANDARD = "standard"
     DETAILED = "detailed"
@@ -30,6 +30,7 @@ class DisplayStyle(Enum):
 @dataclass
 class DisplayConfig:
     """Configuration for display output."""
+
     style: DisplayStyle = DisplayStyle.STANDARD
     format: OutputFormat = OutputFormat.TEXT
     show_timestamps: bool = False
@@ -83,28 +84,18 @@ class Display(ABC):
         self._output_history.append(formatted)
         self.render_formatted(formatted)
 
-    def display_equilibrium(
-        self,
-        positive: float,
-        negative: float,
-        name: str = ""
-    ) -> None:
+    def display_equilibrium(self, positive: float, negative: float, name: str = "") -> None:
         """Display equilibrium balance."""
         formatted = self._formatter.format_equilibrium(positive, negative, name)
         self._output_history.append(formatted)
         self.render_formatted(formatted)
 
     def display_duality(
-        self,
-        positive_name: str,
-        positive_value: float,
-        negative_name: str,
-        negative_value: float
+        self, positive_name: str, positive_value: float, negative_name: str, negative_value: float
     ) -> None:
         """Display duality balance."""
         formatted = self._formatter.format_duality(
-            positive_name, positive_value,
-            negative_name, negative_value
+            positive_name, positive_value, negative_name, negative_value
         )
         self._output_history.append(formatted)
         self.render_formatted(formatted)
@@ -135,11 +126,7 @@ class ConsoleDisplay(Display):
         "white": "\033[37m",
     }
 
-    def __init__(
-        self,
-        config: DisplayConfig | None = None,
-        output: TextIO | None = None
-    ):
+    def __init__(self, config: DisplayConfig | None = None, output: TextIO | None = None):
         super().__init__(config)
         self._output = output or sys.stdout
 
@@ -194,11 +181,7 @@ class ConsoleDisplay(Display):
         self.display(content)
 
     def display_balance_bar(
-        self,
-        positive: float,
-        negative: float,
-        width: int = 50,
-        label: str = ""
+        self, positive: float, negative: float, width: int = 50, label: str = ""
     ) -> None:
         """Display a visual balance bar."""
         pos_width = int(width * positive / 100)
@@ -226,7 +209,7 @@ class ConsoleDisplay(Display):
             "",
             "  All systems derive from this balance.",
             "  OPERATIONAL 52/48 enables META 50/50.",
-            ""
+            "",
         ]
 
         self.display_balance_bar(50, 50, label="META Balance")
@@ -244,7 +227,7 @@ class ConsoleDisplay(Display):
             "  Structure: 52%  ←→  Flexibility: 48%",
             "",
             "  Derived from PI/6 ≈ 0.5236",
-            ""
+            "",
         ]
 
         self.display_balance_bar(52, 48, label="Operational")
@@ -252,16 +235,14 @@ class ConsoleDisplay(Display):
             self.render(line)
 
     def display_proof(
-        self,
-        claim: str,
-        evidence: list[str],
-        conclusion: str,
-        balanced: bool
+        self, claim: str, evidence: list[str], conclusion: str, balanced: bool
     ) -> None:
         """Display a proof structure."""
         self.display_title("Proof", level=2)
 
-        status = self._colorize("✓ VALID", "green") if balanced else self._colorize("✗ INVALID", "red")
+        status = (
+            self._colorize("✓ VALID", "green") if balanced else self._colorize("✗ INVALID", "red")
+        )
         if not self._config.color_enabled:
             status = "✓ VALID" if balanced else "✗ INVALID"
 
@@ -273,11 +254,7 @@ class ConsoleDisplay(Display):
         self.render(f"\nStatus: {status}")
 
     def display_domain_summary(
-        self,
-        name: str,
-        duality: tuple[str, str],
-        concepts: int,
-        balanced: bool
+        self, name: str, duality: tuple[str, str], concepts: int, balanced: bool
     ) -> None:
         """Display domain summary."""
         self.display_title(f"Domain: {name}", level=2)
@@ -325,7 +302,7 @@ class BufferedDisplay(ConsoleDisplay):
 def create_display(
     style: DisplayStyle = DisplayStyle.STANDARD,
     format_type: OutputFormat = OutputFormat.TEXT,
-    buffered: bool = False
+    buffered: bool = False,
 ) -> Display:
     """
     Factory function to create display instance.

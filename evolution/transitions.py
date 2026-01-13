@@ -5,29 +5,31 @@ Manages state transitions in evolution while maintaining META 50/50.
 Transitions represent balanced transformations between phases.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 from uuid import UUID
 
 from core.equilibrium import MetaEquilibrium
 from core.proportions import calculate_50_50
 from evolution.tracker import (
+    EvolutionDelta,
     EvolutionPhase,
     EvolutionState,
     EvolutionTracker,
-    EvolutionDelta,
 )
 
 
 class TransitionType(Enum):
     """Types of evolutionary transitions."""
-    PROGRESSION = "progression"      # Forward movement
-    REGRESSION = "regression"        # Backward movement
-    LATERAL = "lateral"              # Same-level shift
-    QUANTUM = "quantum"              # Discontinuous jump
-    CYCLIC = "cyclic"                # Return to previous state
+
+    PROGRESSION = "progression"  # Forward movement
+    REGRESSION = "regression"  # Backward movement
+    LATERAL = "lateral"  # Same-level shift
+    QUANTUM = "quantum"  # Discontinuous jump
+    CYCLIC = "cyclic"  # Return to previous state
 
 
 @dataclass
@@ -36,6 +38,7 @@ class TransitionRule:
     A rule defining valid transitions between phases.
     Includes cost (energy required) which must be balanced.
     """
+
     name: str
     from_phase: EvolutionPhase
     to_phase: EvolutionPhase
@@ -72,13 +75,14 @@ class TransitionRule:
         return EvolutionDelta(
             positive_change=self._cost_positive,
             negative_change=self._cost_negative,
-            description=f"Transition cost: {self.name}"
+            description=f"Transition cost: {self.name}",
         )
 
 
 @dataclass
 class TransitionResult:
     """Result of applying a transition."""
+
     success: bool
     entity_id: UUID
     from_phase: EvolutionPhase
@@ -98,7 +102,7 @@ class TransitionResult:
             "transition_type": self.transition_type.value,
             "energy_consumed": self.energy_consumed,
             "timestamp": self.timestamp.isoformat(),
-            "error": self.error
+            "error": self.error,
         }
 
 
@@ -114,17 +118,14 @@ class TransitionMatrix:
         (EvolutionPhase.GENESIS, EvolutionPhase.GROWTH, TransitionType.PROGRESSION, 10),
         (EvolutionPhase.GROWTH, EvolutionPhase.MATURATION, TransitionType.PROGRESSION, 20),
         (EvolutionPhase.MATURATION, EvolutionPhase.EQUILIBRIUM, TransitionType.PROGRESSION, 15),
-
         # Transformations
         (EvolutionPhase.MATURATION, EvolutionPhase.TRANSFORMATION, TransitionType.LATERAL, 25),
         (EvolutionPhase.TRANSFORMATION, EvolutionPhase.GROWTH, TransitionType.CYCLIC, 30),
         (EvolutionPhase.TRANSFORMATION, EvolutionPhase.EQUILIBRIUM, TransitionType.PROGRESSION, 20),
-
         # Decay paths
         (EvolutionPhase.EQUILIBRIUM, EvolutionPhase.DECAY, TransitionType.REGRESSION, 5),
         (EvolutionPhase.GROWTH, EvolutionPhase.DECAY, TransitionType.REGRESSION, 15),
         (EvolutionPhase.MATURATION, EvolutionPhase.DECAY, TransitionType.REGRESSION, 10),
-
         # Renewal from decay
         (EvolutionPhase.DECAY, EvolutionPhase.GENESIS, TransitionType.CYCLIC, 50),
     ]
@@ -141,7 +142,7 @@ class TransitionMatrix:
                 from_phase=from_phase,
                 to_phase=to_phase,
                 transition_type=trans_type,
-                energy_cost=cost
+                energy_cost=cost,
             )
             self._rules[(from_phase, to_phase)] = rule
 
@@ -150,31 +151,24 @@ class TransitionMatrix:
         key = (rule.from_phase, rule.to_phase)
         self._rules[key] = rule
 
-    def remove_rule(self, from_phase: EvolutionPhase, to_phase: EvolutionPhase) -> TransitionRule | None:
+    def remove_rule(
+        self, from_phase: EvolutionPhase, to_phase: EvolutionPhase
+    ) -> TransitionRule | None:
         """Remove a transition rule."""
         key = (from_phase, to_phase)
         return self._rules.pop(key, None)
 
     def get_rule(
-        self,
-        from_phase: EvolutionPhase,
-        to_phase: EvolutionPhase
+        self, from_phase: EvolutionPhase, to_phase: EvolutionPhase
     ) -> TransitionRule | None:
         """Get a specific transition rule."""
         return self._rules.get((from_phase, to_phase))
 
     def get_valid_transitions(self, from_phase: EvolutionPhase) -> list[TransitionRule]:
         """Get all valid transitions from a phase."""
-        return [
-            rule for (source, _), rule in self._rules.items()
-            if source == from_phase
-        ]
+        return [rule for (source, _), rule in self._rules.items() if source == from_phase]
 
-    def is_valid_transition(
-        self,
-        from_phase: EvolutionPhase,
-        to_phase: EvolutionPhase
-    ) -> bool:
+    def is_valid_transition(self, from_phase: EvolutionPhase, to_phase: EvolutionPhase) -> bool:
         """Check if a transition is valid."""
         return (from_phase, to_phase) in self._rules
 
@@ -186,7 +180,7 @@ class TransitionMatrix:
         """Get transitions as adjacency dictionary."""
         adjacency: dict[str, list[str]] = {phase.value: [] for phase in EvolutionPhase}
 
-        for (from_phase, to_phase) in self._rules.keys():
+        for from_phase, to_phase in self._rules.keys():
             adjacency[from_phase.value].append(to_phase.value)
 
         return adjacency
@@ -198,11 +192,7 @@ class TransitionEngine:
     Ensures all transitions maintain META 50/50 balance.
     """
 
-    def __init__(
-        self,
-        tracker: EvolutionTracker,
-        matrix: TransitionMatrix | None = None
-    ):
+    def __init__(self, tracker: EvolutionTracker, matrix: TransitionMatrix | None = None):
         self._tracker = tracker
         self._matrix = matrix or TransitionMatrix()
         self._meta = MetaEquilibrium()
@@ -230,11 +220,7 @@ class TransitionEngine:
         rules = self._matrix.get_valid_transitions(state.phase)
         return [rule for rule in rules if rule.can_apply(state)]
 
-    def can_transition(
-        self,
-        entity_id: UUID,
-        to_phase: EvolutionPhase
-    ) -> tuple[bool, str]:
+    def can_transition(self, entity_id: UUID, to_phase: EvolutionPhase) -> tuple[bool, str]:
         """
         Check if an entity can transition to a phase.
 
@@ -251,16 +237,15 @@ class TransitionEngine:
 
         if not rule.can_apply(state):
             if state.total_energy < rule.energy_cost:
-                return False, f"Insufficient energy: need {rule.energy_cost}, have {state.total_energy}"
+                return (
+                    False,
+                    f"Insufficient energy: need {rule.energy_cost}, have {state.total_energy}",
+                )
             return False, "Transition condition not met"
 
         return True, "Transition allowed"
 
-    def execute_transition(
-        self,
-        entity_id: UUID,
-        to_phase: EvolutionPhase
-    ) -> TransitionResult:
+    def execute_transition(self, entity_id: UUID, to_phase: EvolutionPhase) -> TransitionResult:
         """
         Execute a transition for an entity.
 
@@ -280,7 +265,7 @@ class TransitionEngine:
                 to_phase=to_phase,
                 transition_type=TransitionType.PROGRESSION,
                 energy_consumed=0,
-                error="Entity not registered"
+                error="Entity not registered",
             )
 
         from_phase = state.phase
@@ -294,7 +279,7 @@ class TransitionEngine:
                 to_phase=to_phase,
                 transition_type=TransitionType.PROGRESSION,
                 energy_consumed=0,
-                error=f"No valid transition from {from_phase.value} to {to_phase.value}"
+                error=f"No valid transition from {from_phase.value} to {to_phase.value}",
             )
             self._transition_log.append(result)
             return result
@@ -307,7 +292,7 @@ class TransitionEngine:
                 to_phase=to_phase,
                 transition_type=rule.transition_type,
                 energy_consumed=0,
-                error="Transition conditions not met"
+                error="Transition conditions not met",
             )
             self._transition_log.append(result)
             return result
@@ -326,7 +311,7 @@ class TransitionEngine:
 
             # Apply as delta (the difference)
             delta_pos = new_pos - state.positive_energy
-            delta_neg = new_neg - state.negative_energy
+            _ = new_neg - state.negative_energy  # delta_neg for symmetry
 
             # Create balanced delta for the reduction
             if delta_pos < 0:
@@ -343,7 +328,7 @@ class TransitionEngine:
                 from_phase=from_phase,
                 to_phase=to_phase,
                 transition_type=rule.transition_type,
-                energy_consumed=rule.energy_cost
+                energy_consumed=rule.energy_cost,
             )
             self._transition_log.append(result)
             return result
@@ -356,15 +341,12 @@ class TransitionEngine:
                 to_phase=to_phase,
                 transition_type=rule.transition_type,
                 energy_consumed=0,
-                error=str(e)
+                error=str(e),
             )
             self._transition_log.append(result)
             return result
 
-    def get_transition_history(
-        self,
-        entity_id: UUID | None = None
-    ) -> list[TransitionResult]:
+    def get_transition_history(self, entity_id: UUID | None = None) -> list[TransitionResult]:
         """
         Get transition history.
 
@@ -380,9 +362,7 @@ class TransitionEngine:
         return [r for r in self._transition_log if r.entity_id == entity_id]
 
     def get_path_to_phase(
-        self,
-        entity_id: UUID,
-        target_phase: EvolutionPhase
+        self, entity_id: UUID, target_phase: EvolutionPhase
     ) -> list[EvolutionPhase] | None:
         """
         Find a path from current phase to target phase.
@@ -435,20 +415,22 @@ class TransitionEngine:
             if is_balanced:
                 valid_count += 1
 
-            rule_reports.append({
-                "name": rule.name,
-                "from": rule.from_phase.value,
-                "to": rule.to_phase.value,
-                "type": rule.transition_type.value,
-                "cost": rule.energy_cost,
-                "balanced": is_balanced
-            })
+            rule_reports.append(
+                {
+                    "name": rule.name,
+                    "from": rule.from_phase.value,
+                    "to": rule.to_phase.value,
+                    "type": rule.transition_type.value,
+                    "cost": rule.energy_cost,
+                    "balanced": is_balanced,
+                }
+            )
 
         return {
             "total_rules": len(rules),
             "valid_rules": valid_count,
             "all_valid": valid_count == len(rules),
-            "rules": rule_reports
+            "rules": rule_reports,
         }
 
     def prove_meta_meaning(self) -> dict[str, Any]:
@@ -466,11 +448,13 @@ class TransitionEngine:
                 "total_transitions": self.transition_count,
                 "successful": successful,
                 "failed": failed,
-                "success_rate": successful / self.transition_count if self.transition_count > 0 else 0
+                "success_rate": successful / self.transition_count
+                if self.transition_count > 0
+                else 0,
             },
             "proof": (
                 "Transition engine maintains META 50/50 equilibrium"
                 if validation["all_valid"] and tracker_proof["all_valid"]
                 else "Transition engine has META 50/50 violations"
-            )
+            ),
         }

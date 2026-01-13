@@ -4,27 +4,28 @@ Tests for participation module
 Tests for participation tracking and contributions with META 50/50 validation.
 """
 
-import pytest
 from datetime import datetime
 from uuid import uuid4
 
+import pytest
+
+from participation.contributions import (
+    Contribution,
+    ContributionCategory,
+    ContributionManager,
+    ContributionMatcher,
+    ContributionPool,
+    ContributionStatus,
+)
 from participation.tracker import (
-    ParticipationType,
-    ParticipationLevel,
     EngagementState,
+    ParticipationLevel,
+    ParticipationMetrics,
     ParticipationRecord,
     ParticipationSnapshot,
     ParticipationState,
     ParticipationTracker,
-    ParticipationMetrics,
-)
-from participation.contributions import (
-    ContributionCategory,
-    ContributionStatus,
-    Contribution,
-    ContributionPool,
-    ContributionManager,
-    ContributionMatcher,
+    ParticipationType,
 )
 
 
@@ -73,20 +74,12 @@ class TestParticipationRecord:
 
     def test_create_balanced_record(self):
         """Should create balanced record."""
-        record = ParticipationRecord(
-            participant_id=uuid4(),
-            given=50,
-            received=50
-        )
+        record = ParticipationRecord(participant_id=uuid4(), given=50, received=50)
         assert record.is_balanced is True
 
     def test_create_unbalanced_record(self):
         """Should create unbalanced record (allowed but flagged)."""
-        record = ParticipationRecord(
-            participant_id=uuid4(),
-            given=60,
-            received=40
-        )
+        record = ParticipationRecord(participant_id=uuid4(), given=60, received=40)
         assert record.is_balanced is False
 
     def test_negative_values_raise(self):
@@ -134,7 +127,7 @@ class TestParticipationSnapshot:
             engagement_state=EngagementState.ENGAGED,
             total_given=100,
             total_received=100,
-            record_count=5
+            record_count=5,
         )
         assert snapshot.level == ParticipationLevel.ACTIVE
         assert snapshot.is_balanced is True
@@ -148,7 +141,7 @@ class TestParticipationSnapshot:
             engagement_state=EngagementState.DORMANT,
             total_given=50,
             total_received=50,
-            record_count=1
+            record_count=1,
         )
         assert snapshot.total_exchange == 100
 
@@ -426,9 +419,7 @@ class TestContribution:
     def test_create_contribution(self):
         """Should create contribution."""
         contribution = Contribution(
-            contributor_id=uuid4(),
-            value=100,
-            category=ContributionCategory.KNOWLEDGE
+            contributor_id=uuid4(), value=100, category=ContributionCategory.KNOWLEDGE
         )
         assert contribution.value == 100
         assert contribution.reciprocated == 0
@@ -564,9 +555,7 @@ class TestContributionManager:
         contributor_id = uuid4()
 
         contribution = manager.create_contribution(
-            contributor_id=contributor_id,
-            value=100,
-            category=ContributionCategory.EFFORT
+            contributor_id=contributor_id, value=100, category=ContributionCategory.EFFORT
         )
 
         assert manager.contribution_count == 1
@@ -577,9 +566,7 @@ class TestContributionManager:
         manager = ContributionManager()
 
         contribution = manager.create_contribution(
-            contributor_id=uuid4(),
-            value=100,
-            auto_balance=True
+            contributor_id=uuid4(), value=100, auto_balance=True
         )
 
         assert contribution.is_balanced is True
@@ -589,10 +576,7 @@ class TestContributionManager:
         manager = ContributionManager()
         contributor_id = uuid4()
 
-        contribution = manager.create_contribution(
-            contributor_id=contributor_id,
-            value=100
-        )
+        contribution = manager.create_contribution(contributor_id=contributor_id, value=100)
 
         applied = manager.reciprocate(contribution.id, 50)
 
@@ -613,10 +597,7 @@ class TestContributionManager:
         """Should create contribution pool."""
         manager = ContributionManager()
 
-        pool = manager.create_pool(
-            name="Test Pool",
-            category=ContributionCategory.KNOWLEDGE
-        )
+        pool = manager.create_pool(name="Test Pool", category=ContributionCategory.KNOWLEDGE)
 
         assert manager.pool_count == 1
         assert pool.name == "Test Pool"
@@ -729,11 +710,7 @@ class TestIntegration:
         manager = ContributionManager(tracker)
 
         # Create auto-balanced contribution
-        manager.create_contribution(
-            contributor_id=participant_id,
-            value=100,
-            auto_balance=True
-        )
+        manager.create_contribution(contributor_id=participant_id, value=100, auto_balance=True)
 
         # Both systems should be valid
         tracker_valid = tracker.validate_all()

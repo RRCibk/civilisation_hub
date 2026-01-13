@@ -5,10 +5,11 @@ Validates META 50/50 principle and OPERATIONAL 52/48 ratio.
 """
 
 import pytest
+
 from core.equilibrium import (
-    MetaEquilibrium,
     Atom,
     AtomState,
+    MetaEquilibrium,
     SubParameter,
     WaveState,
 )

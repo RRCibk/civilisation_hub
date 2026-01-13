@@ -14,6 +14,7 @@ from typing import Any
 
 class OutputFormat(Enum):
     """Supported output formats."""
+
     TEXT = "text"
     JSON = "json"
     MARKDOWN = "markdown"
@@ -25,6 +26,7 @@ class OutputFormat(Enum):
 @dataclass
 class FormattedOutput:
     """Container for formatted output."""
+
     content: str
     format: OutputFormat
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -40,7 +42,7 @@ class FormattedOutput:
             "format": self.format.value,
             "metadata": self.metadata,
             "timestamp": self.timestamp.isoformat(),
-            "length": self.length
+            "length": self.length,
         }
 
 
@@ -69,7 +71,9 @@ class Formatter(ABC):
         """Format list data."""
         pass
 
-    def format_equilibrium(self, positive: float, negative: float, name: str = "") -> FormattedOutput:
+    def format_equilibrium(
+        self, positive: float, negative: float, name: str = ""
+    ) -> FormattedOutput:
         """Format equilibrium balance display."""
         data = {
             "type": "equilibrium",
@@ -77,23 +81,19 @@ class Formatter(ABC):
             "positive": positive,
             "negative": negative,
             "total": positive + negative,
-            "balanced": abs(positive - 50) < 0.01
+            "balanced": abs(positive - 50) < 0.01,
         }
         return self.format_dict(data)
 
     def format_duality(
-        self,
-        positive_name: str,
-        positive_value: float,
-        negative_name: str,
-        negative_value: float
+        self, positive_name: str, positive_value: float, negative_name: str, negative_value: float
     ) -> FormattedOutput:
         """Format duality display."""
         data = {
             "type": "duality",
             "positive": {"name": positive_name, "value": positive_value},
             "negative": {"name": negative_name, "value": negative_value},
-            "balanced": abs(positive_value - 50) < 0.01
+            "balanced": abs(positive_value - 50) < 0.01,
         }
         return self.format_dict(data)
 
@@ -114,10 +114,7 @@ class TextFormatter(Formatter):
         elif isinstance(data, list):
             return self.format_list(data)
         else:
-            return FormattedOutput(
-                content=str(data),
-                format=self._format
-            )
+            return FormattedOutput(content=str(data), format=self._format)
 
     def format_dict(self, data: dict[str, Any], level: int = 0) -> FormattedOutput:
         """Format dictionary to text."""
@@ -140,10 +137,7 @@ class TextFormatter(Formatter):
             else:
                 lines.append(f"{indent}{key}: {value}")
 
-        return FormattedOutput(
-            content="\n".join(lines),
-            format=self._format
-        )
+        return FormattedOutput(content="\n".join(lines), format=self._format)
 
     def format_list(self, data: list[Any]) -> FormattedOutput:
         """Format list to text."""
@@ -156,12 +150,11 @@ class TextFormatter(Formatter):
             else:
                 lines.append(f"{i}. {item}")
 
-        return FormattedOutput(
-            content="\n".join(lines),
-            format=self._format
-        )
+        return FormattedOutput(content="\n".join(lines), format=self._format)
 
-    def format_equilibrium(self, positive: float, negative: float, name: str = "") -> FormattedOutput:
+    def format_equilibrium(
+        self, positive: float, negative: float, name: str = ""
+    ) -> FormattedOutput:
         """Format equilibrium as text bar."""
         title = name or "Balance"
         bar_width = 50
@@ -177,21 +170,17 @@ class TextFormatter(Formatter):
             f"  Negative: {negative:>6.2f}%",
             f"  {bar}",
             f"  Status: {balance_status}",
-            "═" * (len(title) + 8)
+            "═" * (len(title) + 8),
         ]
 
         return FormattedOutput(
             content="\n".join(lines),
             format=self._format,
-            metadata={"balanced": abs(positive - 50) < 0.01}
+            metadata={"balanced": abs(positive - 50) < 0.01},
         )
 
     def format_duality(
-        self,
-        positive_name: str,
-        positive_value: float,
-        negative_name: str,
-        negative_value: float
+        self, positive_name: str, positive_value: float, negative_name: str, negative_value: float
     ) -> FormattedOutput:
         """Format duality as text."""
         bar_width = 40
@@ -199,17 +188,14 @@ class TextFormatter(Formatter):
         neg_width = bar_width - pos_width
 
         lines = [
-            f"┌─ Duality ─┐",
+            "┌─ Duality ─┐",
             f"│ {positive_name:<15} │ {negative_name:<15} │",
             f"│ {positive_value:>6.2f}%          │ {negative_value:>6.2f}%          │",
             f"│ {'█' * pos_width}{'░' * neg_width} │",
-            f"└{'─' * 37}┘"
+            f"└{'─' * 37}┘",
         ]
 
-        return FormattedOutput(
-            content="\n".join(lines),
-            format=self._format
-        )
+        return FormattedOutput(content="\n".join(lines), format=self._format)
 
 
 class JsonFormatter(Formatter):
@@ -224,19 +210,11 @@ class JsonFormatter(Formatter):
     def format_data(self, data: Any) -> FormattedOutput:
         """Format any data to JSON."""
         try:
-            content = json.dumps(
-                data,
-                indent=self._indent,
-                sort_keys=self._sort_keys,
-                default=str
-            )
+            content = json.dumps(data, indent=self._indent, sort_keys=self._sort_keys, default=str)
         except (TypeError, ValueError) as e:
             content = json.dumps({"error": str(e), "data": str(data)})
 
-        return FormattedOutput(
-            content=content,
-            format=self._format
-        )
+        return FormattedOutput(content=content, format=self._format)
 
     def format_dict(self, data: dict[str, Any]) -> FormattedOutput:
         """Format dictionary to JSON."""
@@ -261,10 +239,7 @@ class MarkdownFormatter(Formatter):
         elif isinstance(data, list):
             return self.format_list(data)
         else:
-            return FormattedOutput(
-                content=f"`{data}`",
-                format=self._format
-            )
+            return FormattedOutput(content=f"`{data}`", format=self._format)
 
     def format_dict(self, data: dict[str, Any], level: int = 1) -> FormattedOutput:
         """Format dictionary to Markdown."""
@@ -287,10 +262,7 @@ class MarkdownFormatter(Formatter):
             else:
                 lines.append(f"**{key}**: {value}")
 
-        return FormattedOutput(
-            content="\n".join(lines),
-            format=self._format
-        )
+        return FormattedOutput(content="\n".join(lines), format=self._format)
 
     def format_list(self, data: list[Any]) -> FormattedOutput:
         """Format list to Markdown."""
@@ -302,12 +274,11 @@ class MarkdownFormatter(Formatter):
             else:
                 lines.append(f"- {item}")
 
-        return FormattedOutput(
-            content="\n".join(lines),
-            format=self._format
-        )
+        return FormattedOutput(content="\n".join(lines), format=self._format)
 
-    def format_equilibrium(self, positive: float, negative: float, name: str = "") -> FormattedOutput:
+    def format_equilibrium(
+        self, positive: float, negative: float, name: str = ""
+    ) -> FormattedOutput:
         """Format equilibrium in Markdown."""
         title = name or "Balance"
         status = "✅ Balanced" if abs(positive - 50) < 0.01 else "⚠️ Imbalanced"
@@ -320,20 +291,13 @@ class MarkdownFormatter(Formatter):
             f"| Positive | {positive:.2f}% |",
             f"| Negative | {negative:.2f}% |",
             f"| Status | {status} |",
-            ""
+            "",
         ]
 
-        return FormattedOutput(
-            content="\n".join(lines),
-            format=self._format
-        )
+        return FormattedOutput(content="\n".join(lines), format=self._format)
 
     def format_duality(
-        self,
-        positive_name: str,
-        positive_value: float,
-        negative_name: str,
-        negative_value: float
+        self, positive_name: str, positive_value: float, negative_name: str, negative_value: float
     ) -> FormattedOutput:
         """Format duality in Markdown."""
         status = "✅" if abs(positive_value - 50) < 0.01 else "⚠️"
@@ -344,13 +308,10 @@ class MarkdownFormatter(Formatter):
             f"| {positive_name} | {negative_name} | Status |",
             "|------------|------------|--------|",
             f"| {positive_value:.2f}% | {negative_value:.2f}% | {status} |",
-            ""
+            "",
         ]
 
-        return FormattedOutput(
-            content="\n".join(lines),
-            format=self._format
-        )
+        return FormattedOutput(content="\n".join(lines), format=self._format)
 
 
 class TableFormatter(Formatter):
@@ -369,10 +330,7 @@ class TableFormatter(Formatter):
         elif isinstance(data, list):
             return self.format_list(data)
         else:
-            return FormattedOutput(
-                content=str(data),
-                format=self._format
-            )
+            return FormattedOutput(content=str(data), format=self._format)
 
     def format_dict(self, data: dict[str, Any]) -> FormattedOutput:
         """Format dictionary as key-value table."""
@@ -397,10 +355,7 @@ class TableFormatter(Formatter):
 
         lines.append(f"└{'─' * key_width}┴{'─' * val_width}┘")
 
-        return FormattedOutput(
-            content="\n".join(lines),
-            format=self._format
-        )
+        return FormattedOutput(content="\n".join(lines), format=self._format)
 
     def format_list(self, data: list[Any]) -> FormattedOutput:
         """Format list as table."""
@@ -420,10 +375,7 @@ class TableFormatter(Formatter):
             lines.append(f"│ {i}. {str(item):<{width - 4}} │")
         lines.append(f"└{'─' * width}┘")
 
-        return FormattedOutput(
-            content="\n".join(lines),
-            format=self._format
-        )
+        return FormattedOutput(content="\n".join(lines), format=self._format)
 
     def _format_dict_list(self, data: list[dict[str, Any]]) -> FormattedOutput:
         """Format list of dicts as table with columns."""
@@ -473,12 +425,11 @@ class TableFormatter(Formatter):
         footer = "└" + "┴".join("─" * widths[k] for k in all_keys) + "┘"
         lines.append(footer)
 
-        return FormattedOutput(
-            content="\n".join(lines),
-            format=self._format
-        )
+        return FormattedOutput(content="\n".join(lines), format=self._format)
 
-    def format_equilibrium(self, positive: float, negative: float, name: str = "") -> FormattedOutput:
+    def format_equilibrium(
+        self, positive: float, negative: float, name: str = ""
+    ) -> FormattedOutput:
         """Format equilibrium as table."""
         title = name or "Equilibrium"
         balanced = "Yes" if abs(positive - 50) < 0.01 else "No"
@@ -487,7 +438,7 @@ class TableFormatter(Formatter):
             "Name": title,
             "Positive": f"{positive:.2f}%",
             "Negative": f"{negative:.2f}%",
-            "Balanced": balanced
+            "Balanced": balanced,
         }
         return self.format_dict(data)
 

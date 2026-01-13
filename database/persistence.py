@@ -10,26 +10,21 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from database.engine import create_tables, get_engine
 from database.models import (
-    DomainModel,
     ConceptModel,
     ConceptRelationModel,
+    DomainModel,
     DualityModel,
 )
 from database.repository import (
-    DomainRepository,
-    ConceptRepository,
     ConceptRelationRepository,
+    ConceptRepository,
+    DomainRepository,
 )
 from database.session import SessionManager, get_session_manager
-from database.engine import get_engine, create_tables
-
 from knowledge.domains.base import (
     KnowledgeDomain,
-    Concept,
-    ConceptRelation,
-    ConceptType,
-    RelationType,
 )
 
 
@@ -39,11 +34,7 @@ class DomainPersistenceService:
     Maintains META 50/50 compliance in persistence operations.
     """
 
-    def __init__(
-        self,
-        session_manager: SessionManager | None = None,
-        auto_init: bool = True
-    ):
+    def __init__(self, session_manager: SessionManager | None = None, auto_init: bool = True):
         """
         Initialize persistence service.
 
@@ -87,11 +78,7 @@ class DomainPersistenceService:
 
             return db_domain
 
-    def _create_domain_model(
-        self,
-        session: Session,
-        domain: KnowledgeDomain
-    ) -> DomainModel:
+    def _create_domain_model(self, session: Session, domain: KnowledgeDomain) -> DomainModel:
         """Create database model from knowledge domain."""
         # Create duality if exists
         duality = None
@@ -102,7 +89,7 @@ class DomainPersistenceService:
                 positive_name=d.positive.name,
                 positive_value=d.positive.value,
                 negative_name=d.negative.name,
-                negative_value=d.negative.value
+                negative_value=d.negative.value,
             )
 
         db_domain = DomainModel(
@@ -112,7 +99,7 @@ class DomainPersistenceService:
             description=domain.description,
             state=domain.domain.state.value,
             is_active=domain.domain.state.value == "active",
-            duality=duality
+            duality=duality,
         )
 
         session.add(db_domain)
@@ -120,10 +107,7 @@ class DomainPersistenceService:
         return db_domain
 
     def _save_concepts(
-        self,
-        session: Session,
-        domain: KnowledgeDomain,
-        domain_id: int
+        self, session: Session, domain: KnowledgeDomain, domain_id: int
     ) -> dict[UUID, int]:
         """
         Save all concepts from domain.
@@ -142,7 +126,7 @@ class DomainPersistenceService:
                 certainty=concept.certainty,
                 uncertainty=concept.uncertainty,
                 domain_id=domain_id,
-                metadata_json=concept.metadata if concept.metadata else None
+                metadata_json=concept.metadata if concept.metadata else None,
             )
             session.add(db_concept)
             session.flush()
@@ -151,10 +135,7 @@ class DomainPersistenceService:
         return concept_map
 
     def _save_relations(
-        self,
-        session: Session,
-        domain: KnowledgeDomain,
-        concept_map: dict[UUID, int]
+        self, session: Session, domain: KnowledgeDomain, concept_map: dict[UUID, int]
     ) -> None:
         """Save all concept relations."""
         for relation in domain._relations.values():
@@ -166,15 +147,12 @@ class DomainPersistenceService:
                     relation_type=relation.relation_type.value,
                     strength=relation.strength,
                     bidirectional=relation.bidirectional,
-                    metadata_json=relation.metadata if relation.metadata else None
+                    metadata_json=relation.metadata if relation.metadata else None,
                 )
                 session.add(db_relation)
 
     def _update_domain(
-        self,
-        session: Session,
-        existing: DomainModel,
-        domain: KnowledgeDomain
+        self, session: Session, existing: DomainModel, domain: KnowledgeDomain
     ) -> DomainModel:
         """Update existing domain with new data."""
         existing.description = domain.description
@@ -199,7 +177,7 @@ class DomainPersistenceService:
                     certainty=concept.certainty,
                     uncertainty=concept.uncertainty,
                     domain_id=existing.id,
-                    metadata_json=concept.metadata if concept.metadata else None
+                    metadata_json=concept.metadata if concept.metadata else None,
                 )
                 session.add(db_concept)
 
@@ -234,7 +212,7 @@ class DomainPersistenceService:
                 "certainty": c.certainty,
                 "uncertainty": c.uncertainty,
                 "is_balanced": c.is_balanced,
-                "metadata": c.metadata_json
+                "metadata": c.metadata_json,
             }
             for c in db_domain.concepts
         ]
@@ -244,13 +222,13 @@ class DomainPersistenceService:
             duality = {
                 "positive": {
                     "name": db_domain.duality.positive_name,
-                    "value": db_domain.duality.positive_value
+                    "value": db_domain.duality.positive_value,
                 },
                 "negative": {
                     "name": db_domain.duality.negative_name,
-                    "value": db_domain.duality.negative_value
+                    "value": db_domain.duality.negative_value,
                 },
-                "is_balanced": db_domain.duality.is_balanced
+                "is_balanced": db_domain.duality.is_balanced,
             }
 
         return {
@@ -263,7 +241,7 @@ class DomainPersistenceService:
             "meta_compliant": db_domain.meta_compliant,
             "duality": duality,
             "concepts": concepts,
-            "concept_count": len(concepts)
+            "concept_count": len(concepts),
         }
 
     def list_domains(self) -> list[dict[str, Any]]:
@@ -282,7 +260,7 @@ class DomainPersistenceService:
                     "type": d.domain_type,
                     "concept_count": d.concept_count,
                     "meta_compliant": d.meta_compliant,
-                    "is_active": d.is_active
+                    "is_active": d.is_active,
                 }
                 for d in domains
             ]
@@ -338,9 +316,8 @@ class DomainPersistenceService:
                 "total_concepts": concept_count,
                 "meta_compliant_domains": len(compliant_domains),
                 "compliance_rate": (
-                    len(compliant_domains) / domain_count * 100
-                    if domain_count > 0 else 100.0
-                )
+                    len(compliant_domains) / domain_count * 100 if domain_count > 0 else 100.0
+                ),
             }
 
     def validate_persisted_domains(self) -> dict[str, Any]:
@@ -355,6 +332,7 @@ class DomainPersistenceService:
 
 
 # Convenience functions
+
 
 def save_domain(domain: KnowledgeDomain) -> DomainModel:
     """Save a domain to database."""

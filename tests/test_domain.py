@@ -4,20 +4,21 @@ Tests for models/domain.py
 Tests for knowledge domain models with META 50/50 validation.
 """
 
-import pytest
 from uuid import UUID
 
-from models.domain import (
-    DomainType,
-    DomainState,
-    DomainPole,
-    DomainDuality,
-    DomainAttribute,
-    Domain,
-    DomainRelationship,
-    DomainHierarchy,
-)
+import pytest
+
 from core.equilibrium import MetaEquilibrium
+from models.domain import (
+    Domain,
+    DomainAttribute,
+    DomainDuality,
+    DomainHierarchy,
+    DomainPole,
+    DomainRelationship,
+    DomainState,
+    DomainType,
+)
 
 
 class TestDomainType:
@@ -88,67 +89,39 @@ class TestDomainDuality:
 
     def test_is_balanced_true(self):
         """Equal values should be balanced."""
-        duality = DomainDuality(
-            DomainPole("a", 100),
-            DomainPole("b", 100),
-            "test"
-        )
+        duality = DomainDuality(DomainPole("a", 100), DomainPole("b", 100), "test")
         assert duality.is_balanced is True
 
     def test_is_balanced_false(self):
         """Unequal values should not be balanced."""
-        duality = DomainDuality(
-            DomainPole("a", 60),
-            DomainPole("b", 40),
-            "test"
-        )
+        duality = DomainDuality(DomainPole("a", 60), DomainPole("b", 40), "test")
         assert duality.is_balanced is False
 
     def test_balance_property(self):
         """Balance should return correct percentages."""
-        duality = DomainDuality(
-            DomainPole("a", 50),
-            DomainPole("b", 50),
-            "test"
-        )
+        duality = DomainDuality(DomainPole("a", 50), DomainPole("b", 50), "test")
         assert duality.balance == (50.0, 50.0)
 
     def test_total_energy(self):
         """Total energy should sum both poles."""
-        duality = DomainDuality(
-            DomainPole("a", 100),
-            DomainPole("b", 100),
-            "test"
-        )
+        duality = DomainDuality(DomainPole("a", 100), DomainPole("b", 100), "test")
         assert duality.total_energy == 200
 
     def test_validate_balanced_passes(self):
         """Balanced duality should pass validation."""
-        duality = DomainDuality(
-            DomainPole("a", 50),
-            DomainPole("b", 50),
-            "test"
-        )
+        duality = DomainDuality(DomainPole("a", 50), DomainPole("b", 50), "test")
         duality.validate()  # Should not raise
 
     def test_validate_unbalanced_raises(self):
         """Unbalanced duality should raise ValueError."""
-        duality = DomainDuality(
-            DomainPole("a", 60),
-            DomainPole("b", 40),
-            "test"
-        )
+        duality = DomainDuality(DomainPole("a", 60), DomainPole("b", 40), "test")
         with pytest.raises(ValueError) as exc_info:
             duality.validate()
         assert "violates META 50/50" in str(exc_info.value)
 
     def test_to_sub_parameter(self):
         """Should convert to SubParameter."""
-        duality = DomainDuality(
-            DomainPole("a", 100),
-            DomainPole("b", 100),
-            "test"
-        )
+        duality = DomainDuality(DomainPole("a", 100), DomainPole("b", 100), "test")
         param = duality.to_sub_parameter()
         assert param.name == "test"
         assert param.values == (100, 100)
@@ -329,11 +302,7 @@ class TestDomainRelationship:
         target = Domain("B")
 
         rel = DomainRelationship(
-            name="A_to_B",
-            source=source,
-            target=target,
-            influence_give=50,
-            influence_receive=50
+            name="A_to_B", source=source, target=target, influence_give=50, influence_receive=50
         )
 
         assert rel.name == "A_to_B"
@@ -346,11 +315,7 @@ class TestDomainRelationship:
 
         with pytest.raises(ValueError) as exc_info:
             DomainRelationship(
-                name="bad",
-                source=source,
-                target=target,
-                influence_give=60,
-                influence_receive=40
+                name="bad", source=source, target=target, influence_give=60, influence_receive=40
             )
         assert "violates META 50/50" in str(exc_info.value)
 
@@ -360,11 +325,7 @@ class TestDomainRelationship:
         target = Domain("B")
 
         rel = DomainRelationship(
-            name="test",
-            source=source,
-            target=target,
-            influence_give=100,
-            influence_receive=100
+            name="test", source=source, target=target, influence_give=100, influence_receive=100
         )
 
         assert rel.total_influence == 200
@@ -375,11 +336,7 @@ class TestDomainRelationship:
         target = Domain("B")
 
         rel = DomainRelationship(
-            name="test",
-            source=source,
-            target=target,
-            influence_give=50,
-            influence_receive=50
+            name="test", source=source, target=target, influence_give=50, influence_receive=50
         )
 
         proof = rel.prove_meta_meaning()

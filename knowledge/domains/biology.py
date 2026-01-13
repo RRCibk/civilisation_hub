@@ -6,17 +6,14 @@ Fundamental duality: Life/Death (anabolism/catabolism, creation/destruction).
 """
 
 from typing import Any
-from uuid import UUID
 
-from models.domain import DomainType
 from core.equilibrium import MetaEquilibrium
 from knowledge.domains.base import (
-    KnowledgeDomain,
-    Concept,
     ConceptType,
-    ConceptRelation,
+    KnowledgeDomain,
     RelationType,
 )
+from models.domain import DomainType
 
 
 class BiologyDomain(KnowledgeDomain):
@@ -38,7 +35,7 @@ class BiologyDomain(KnowledgeDomain):
             name="Biology",
             domain_type=DomainType.FUNDAMENTAL,
             description="The study of living organisms and life processes",
-            meta_equilibrium=meta_equilibrium
+            meta_equilibrium=meta_equilibrium,
         )
 
     def _initialize_duality(self) -> None:
@@ -48,7 +45,7 @@ class BiologyDomain(KnowledgeDomain):
             positive_value=50,
             negative_name="death",
             negative_value=50,
-            duality_name="biology_duality"
+            duality_name="biology_duality",
         )
         self._domain.activate()
 
@@ -57,36 +54,21 @@ class BiologyDomain(KnowledgeDomain):
         principles = [
             (
                 "Cell Theory",
-                "All living organisms are composed of cells; cells are the basic unit of life"
+                "All living organisms are composed of cells; cells are the basic unit of life",
             ),
-            (
-                "Gene Theory",
-                "Traits are inherited through genes; DNA is the hereditary material"
-            ),
+            ("Gene Theory", "Traits are inherited through genes; DNA is the hereditary material"),
             (
                 "Evolution by Natural Selection",
-                "Species evolve through variation, inheritance, selection, and time"
+                "Species evolve through variation, inheritance, selection, and time",
             ),
             (
                 "Homeostasis",
-                "Living systems maintain internal equilibrium despite external changes"
+                "Living systems maintain internal equilibrium despite external changes",
             ),
-            (
-                "Energy Flow",
-                "Energy flows through ecosystems from producers to consumers"
-            ),
-            (
-                "Central Dogma",
-                "Genetic information flows: DNA → RNA → Protein"
-            ),
-            (
-                "Biogenesis",
-                "Life arises only from existing life"
-            ),
-            (
-                "Unity and Diversity",
-                "All life shares common ancestry yet exhibits vast diversity"
-            ),
+            ("Energy Flow", "Energy flows through ecosystems from producers to consumers"),
+            ("Central Dogma", "Genetic information flows: DNA → RNA → Protein"),
+            ("Biogenesis", "Life arises only from existing life"),
+            ("Unity and Diversity", "All life shares common ancestry yet exhibits vast diversity"),
         ]
 
         for name, description in principles:
@@ -94,15 +76,27 @@ class BiologyDomain(KnowledgeDomain):
                 name=name,
                 concept_type=ConceptType.PRINCIPLE,
                 description=description,
-                certainty=95  # High certainty biological principles
+                certainty=95,  # High certainty biological principles
             )
 
     def get_fundamental_concepts(self) -> list[str]:
         """Get fundamental biology concepts."""
         return [
-            "Cell", "Gene", "Protein", "DNA", "RNA",
-            "Organism", "Species", "Evolution", "Metabolism", "Reproduction",
-            "Ecosystem", "Population", "Adaptation", "Mutation", "Selection"
+            "Cell",
+            "Gene",
+            "Protein",
+            "DNA",
+            "RNA",
+            "Organism",
+            "Species",
+            "Evolution",
+            "Metabolism",
+            "Reproduction",
+            "Ecosystem",
+            "Population",
+            "Adaptation",
+            "Mutation",
+            "Selection",
         ]
 
     def initialize_branches(self) -> None:
@@ -143,9 +137,7 @@ class BiologyDomain(KnowledgeDomain):
         concepts = []
         for name, description, examples in ranks:
             concept = self.create_concept(
-                name=name,
-                concept_type=ConceptType.DEFINITION,
-                description=description
+                name=name, concept_type=ConceptType.DEFINITION, description=description
             )
             concept.metadata["examples"] = examples
             concepts.append(concept)
@@ -153,10 +145,7 @@ class BiologyDomain(KnowledgeDomain):
         # Create hierarchy relations
         for i in range(len(concepts) - 1):
             self.create_relation(
-                concepts[i],
-                concepts[i + 1],
-                RelationType.SPECIALIZES,
-                strength=100
+                concepts[i], concepts[i + 1], RelationType.SPECIALIZES, strength=100
             )
 
     def initialize_cell_components(self) -> None:
@@ -178,9 +167,7 @@ class BiologyDomain(KnowledgeDomain):
 
         for name, function, found_in in organelles:
             concept = self.create_concept(
-                name=name,
-                concept_type=ConceptType.DEFINITION,
-                description=function
+                name=name, concept_type=ConceptType.DEFINITION, description=function
             )
             concept.metadata["found_in"] = found_in
 
@@ -191,38 +178,33 @@ class BiologyDomain(KnowledgeDomain):
                 "Carbohydrates",
                 "Energy storage and structural molecules",
                 "Cn(H2O)n",
-                ["Glucose", "Starch", "Cellulose"]
+                ["Glucose", "Starch", "Cellulose"],
             ),
             (
                 "Proteins",
                 "Enzymes, structural components, signaling",
                 "Amino acid polymers",
-                ["Enzymes", "Antibodies", "Collagen"]
+                ["Enzymes", "Antibodies", "Collagen"],
             ),
             (
                 "Lipids",
                 "Energy storage, membranes, signaling",
                 "Fatty acids + glycerol",
-                ["Fats", "Phospholipids", "Steroids"]
+                ["Fats", "Phospholipids", "Steroids"],
             ),
             (
                 "Nucleic Acids",
                 "Genetic information storage and transfer",
                 "Nucleotide polymers",
-                ["DNA", "RNA"]
+                ["DNA", "RNA"],
             ),
         ]
 
         for name, function, structure, examples in molecules:
             concept = self.create_concept(
-                name=name,
-                concept_type=ConceptType.DEFINITION,
-                description=function
+                name=name, concept_type=ConceptType.DEFINITION, description=function
             )
-            concept.metadata.update({
-                "basic_structure": structure,
-                "examples": examples
-            })
+            concept.metadata.update({"basic_structure": structure, "examples": examples})
 
     def initialize_biological_processes(self) -> None:
         """Initialize key biological processes."""
@@ -230,50 +212,24 @@ class BiologyDomain(KnowledgeDomain):
             (
                 "Photosynthesis",
                 "Convert light energy to chemical energy",
-                "6CO2 + 6H2O → C6H12O6 + 6O2"
+                "6CO2 + 6H2O → C6H12O6 + 6O2",
             ),
             (
                 "Cellular Respiration",
                 "Extract energy from glucose",
-                "C6H12O6 + 6O2 → 6CO2 + 6H2O + ATP"
+                "C6H12O6 + 6O2 → 6CO2 + 6H2O + ATP",
             ),
-            (
-                "DNA Replication",
-                "Copy genetic information",
-                "DNA → 2 identical DNA molecules"
-            ),
-            (
-                "Transcription",
-                "Copy DNA to RNA",
-                "DNA → mRNA"
-            ),
-            (
-                "Translation",
-                "Build proteins from mRNA",
-                "mRNA → Protein"
-            ),
-            (
-                "Mitosis",
-                "Cell division for growth",
-                "1 cell → 2 identical cells"
-            ),
-            (
-                "Meiosis",
-                "Cell division for reproduction",
-                "1 cell → 4 haploid cells"
-            ),
-            (
-                "Apoptosis",
-                "Programmed cell death",
-                "Controlled cellular destruction"
-            ),
+            ("DNA Replication", "Copy genetic information", "DNA → 2 identical DNA molecules"),
+            ("Transcription", "Copy DNA to RNA", "DNA → mRNA"),
+            ("Translation", "Build proteins from mRNA", "mRNA → Protein"),
+            ("Mitosis", "Cell division for growth", "1 cell → 2 identical cells"),
+            ("Meiosis", "Cell division for reproduction", "1 cell → 4 haploid cells"),
+            ("Apoptosis", "Programmed cell death", "Controlled cellular destruction"),
         ]
 
         for name, description, formula in processes:
             concept = self.create_concept(
-                name=name,
-                concept_type=ConceptType.MODEL,
-                description=description
+                name=name, concept_type=ConceptType.MODEL, description=description
             )
             concept.metadata["formula"] = formula
 
@@ -288,23 +244,23 @@ class BiologyDomain(KnowledgeDomain):
                 "anabolism_catabolism": {
                     "anabolism": 50.0,
                     "catabolism": 50.0,
-                    "meaning": "Building up and breaking down must balance"
+                    "meaning": "Building up and breaking down must balance",
                 },
                 "birth_death": {
                     "birth": 50.0,
                     "death": 50.0,
-                    "meaning": "Population equilibrium requires balanced rates"
+                    "meaning": "Population equilibrium requires balanced rates",
                 },
                 "predator_prey": {
                     "predator": 50.0,
                     "prey": 50.0,
-                    "meaning": "Ecosystem balance through population dynamics"
+                    "meaning": "Ecosystem balance through population dynamics",
                 },
                 "production_consumption": {
                     "production": 50.0,
                     "consumption": 50.0,
-                    "meaning": "Energy flow maintains ecosystem balance"
-                }
+                    "meaning": "Energy flow maintains ecosystem balance",
+                },
             },
             "homeostasis": {
                 "description": "Living systems maintain internal balance",
@@ -312,37 +268,84 @@ class BiologyDomain(KnowledgeDomain):
                     "Body temperature regulation",
                     "Blood pH balance",
                     "Blood glucose levels",
-                    "Water balance"
-                ]
+                    "Water balance",
+                ],
             },
-            "meta_meaning": "Life maintains dynamic equilibrium through balanced processes"
+            "meta_meaning": "Life maintains dynamic equilibrium through balanced processes",
         }
 
     def get_genetic_code(self) -> dict[str, str]:
         """Get the standard genetic code (codon to amino acid)."""
         return {
-            "UUU": "Phe", "UUC": "Phe", "UUA": "Leu", "UUG": "Leu",
-            "UCU": "Ser", "UCC": "Ser", "UCA": "Ser", "UCG": "Ser",
-            "UAU": "Tyr", "UAC": "Tyr", "UAA": "Stop", "UAG": "Stop",
-            "UGU": "Cys", "UGC": "Cys", "UGA": "Stop", "UGG": "Trp",
-            "CUU": "Leu", "CUC": "Leu", "CUA": "Leu", "CUG": "Leu",
-            "CCU": "Pro", "CCC": "Pro", "CCA": "Pro", "CCG": "Pro",
-            "CAU": "His", "CAC": "His", "CAA": "Gln", "CAG": "Gln",
-            "CGU": "Arg", "CGC": "Arg", "CGA": "Arg", "CGG": "Arg",
-            "AUU": "Ile", "AUC": "Ile", "AUA": "Ile", "AUG": "Met",
-            "ACU": "Thr", "ACC": "Thr", "ACA": "Thr", "ACG": "Thr",
-            "AAU": "Asn", "AAC": "Asn", "AAA": "Lys", "AAG": "Lys",
-            "AGU": "Ser", "AGC": "Ser", "AGA": "Arg", "AGG": "Arg",
-            "GUU": "Val", "GUC": "Val", "GUA": "Val", "GUG": "Val",
-            "GCU": "Ala", "GCC": "Ala", "GCA": "Ala", "GCG": "Ala",
-            "GAU": "Asp", "GAC": "Asp", "GAA": "Glu", "GAG": "Glu",
-            "GGU": "Gly", "GGC": "Gly", "GGA": "Gly", "GGG": "Gly",
+            "UUU": "Phe",
+            "UUC": "Phe",
+            "UUA": "Leu",
+            "UUG": "Leu",
+            "UCU": "Ser",
+            "UCC": "Ser",
+            "UCA": "Ser",
+            "UCG": "Ser",
+            "UAU": "Tyr",
+            "UAC": "Tyr",
+            "UAA": "Stop",
+            "UAG": "Stop",
+            "UGU": "Cys",
+            "UGC": "Cys",
+            "UGA": "Stop",
+            "UGG": "Trp",
+            "CUU": "Leu",
+            "CUC": "Leu",
+            "CUA": "Leu",
+            "CUG": "Leu",
+            "CCU": "Pro",
+            "CCC": "Pro",
+            "CCA": "Pro",
+            "CCG": "Pro",
+            "CAU": "His",
+            "CAC": "His",
+            "CAA": "Gln",
+            "CAG": "Gln",
+            "CGU": "Arg",
+            "CGC": "Arg",
+            "CGA": "Arg",
+            "CGG": "Arg",
+            "AUU": "Ile",
+            "AUC": "Ile",
+            "AUA": "Ile",
+            "AUG": "Met",
+            "ACU": "Thr",
+            "ACC": "Thr",
+            "ACA": "Thr",
+            "ACG": "Thr",
+            "AAU": "Asn",
+            "AAC": "Asn",
+            "AAA": "Lys",
+            "AAG": "Lys",
+            "AGU": "Ser",
+            "AGC": "Ser",
+            "AGA": "Arg",
+            "AGG": "Arg",
+            "GUU": "Val",
+            "GUC": "Val",
+            "GUA": "Val",
+            "GUG": "Val",
+            "GCU": "Ala",
+            "GCC": "Ala",
+            "GCA": "Ala",
+            "GCG": "Ala",
+            "GAU": "Asp",
+            "GAC": "Asp",
+            "GAA": "Glu",
+            "GAG": "Glu",
+            "GGU": "Gly",
+            "GGC": "Gly",
+            "GGA": "Gly",
+            "GGG": "Gly",
         }
 
 
 def create_biology_domain(
-    meta_equilibrium: MetaEquilibrium | None = None,
-    initialize_all: bool = True
+    meta_equilibrium: MetaEquilibrium | None = None, initialize_all: bool = True
 ) -> BiologyDomain:
     """
     Factory function to create a fully initialized biology domain.

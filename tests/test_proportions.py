@@ -5,17 +5,19 @@ Validates PI/6 ratio, 52/48 calculations, and META 50/50 verification.
 """
 
 import math
+
 import pytest
+
 from core.proportions import (
     PI_OVER_6,
     PI_OVER_6_ROUNDED,
-    ProportionConstants,
-    Ratio,
     OperationalRatio,
     Pi6Proportion,
+    ProportionConstants,
     ProportionValidator,
-    calculate_52_48,
+    Ratio,
     calculate_50_50,
+    calculate_52_48,
     ratio_to_meta_meaning,
     verify_ratio_chain_maintains_meta,
 )

@@ -6,17 +6,13 @@ Fundamental duality: Abstraction/Implementation (design/code).
 """
 
 from typing import Any
-from uuid import UUID
 
-from models.domain import DomainType
 from core.equilibrium import MetaEquilibrium
 from knowledge.domains.base import (
-    KnowledgeDomain,
-    Concept,
     ConceptType,
-    ConceptRelation,
-    RelationType,
+    KnowledgeDomain,
 )
+from models.domain import DomainType
 
 
 class CodeDomain(KnowledgeDomain):
@@ -38,7 +34,7 @@ class CodeDomain(KnowledgeDomain):
             name="Code",
             domain_type=DomainType.FUNDAMENTAL,
             description="The art and science of software development",
-            meta_equilibrium=meta_equilibrium
+            meta_equilibrium=meta_equilibrium,
         )
 
     def _initialize_duality(self) -> None:
@@ -48,53 +44,29 @@ class CodeDomain(KnowledgeDomain):
             positive_value=50,
             negative_name="implementation",
             negative_value=50,
-            duality_name="code_duality"
+            duality_name="code_duality",
         )
         self._domain.activate()
 
     def _initialize_axioms(self) -> None:
         """Initialize fundamental programming principles as axioms."""
         principles = [
-            (
-                "DRY",
-                "Don't Repeat Yourself - every piece of knowledge has a single representation"
-            ),
-            (
-                "KISS",
-                "Keep It Simple, Stupid - simplicity is a key goal in design"
-            ),
-            (
-                "YAGNI",
-                "You Aren't Gonna Need It - don't add functionality until necessary"
-            ),
+            ("DRY", "Don't Repeat Yourself - every piece of knowledge has a single representation"),
+            ("KISS", "Keep It Simple, Stupid - simplicity is a key goal in design"),
+            ("YAGNI", "You Aren't Gonna Need It - don't add functionality until necessary"),
             (
                 "Separation of Concerns",
-                "Divide a program into distinct sections with minimal overlap"
+                "Divide a program into distinct sections with minimal overlap",
             ),
-            (
-                "Single Responsibility",
-                "A class should have only one reason to change"
-            ),
-            (
-                "Open/Closed Principle",
-                "Open for extension, closed for modification"
-            ),
-            (
-                "Liskov Substitution",
-                "Objects should be replaceable by subtypes"
-            ),
+            ("Single Responsibility", "A class should have only one reason to change"),
+            ("Open/Closed Principle", "Open for extension, closed for modification"),
+            ("Liskov Substitution", "Objects should be replaceable by subtypes"),
             (
                 "Interface Segregation",
-                "Many specific interfaces are better than one general interface"
+                "Many specific interfaces are better than one general interface",
             ),
-            (
-                "Dependency Inversion",
-                "Depend on abstractions, not concretions"
-            ),
-            (
-                "Composition Over Inheritance",
-                "Favor object composition over class inheritance"
-            ),
+            ("Dependency Inversion", "Depend on abstractions, not concretions"),
+            ("Composition Over Inheritance", "Favor object composition over class inheritance"),
         ]
 
         for name, description in principles:
@@ -102,15 +74,27 @@ class CodeDomain(KnowledgeDomain):
                 name=name,
                 concept_type=ConceptType.PRINCIPLE,
                 description=description,
-                certainty=90  # Principles are highly certain but context-dependent
+                certainty=90,  # Principles are highly certain but context-dependent
             )
 
     def get_fundamental_concepts(self) -> list[str]:
         """Get fundamental programming concepts."""
         return [
-            "Variable", "Function", "Class", "Object", "Interface",
-            "Module", "Package", "Algorithm", "Data Structure", "Type",
-            "Loop", "Condition", "Exception", "Thread", "Memory"
+            "Variable",
+            "Function",
+            "Class",
+            "Object",
+            "Interface",
+            "Module",
+            "Package",
+            "Algorithm",
+            "Data Structure",
+            "Type",
+            "Loop",
+            "Condition",
+            "Exception",
+            "Thread",
+            "Memory",
         ]
 
     def initialize_paradigms(self) -> None:
@@ -119,50 +103,44 @@ class CodeDomain(KnowledgeDomain):
             (
                 "Imperative",
                 "Programs as sequences of commands that change state",
-                ["C", "Pascal", "BASIC"]
+                ["C", "Pascal", "BASIC"],
             ),
             (
                 "Object-Oriented",
                 "Programs as collections of interacting objects",
-                ["Java", "C++", "Python"]
+                ["Java", "C++", "Python"],
             ),
             (
                 "Functional",
                 "Programs as evaluation of mathematical functions",
-                ["Haskell", "Lisp", "Erlang"]
+                ["Haskell", "Lisp", "Erlang"],
             ),
             (
                 "Declarative",
                 "Programs express logic without describing control flow",
-                ["SQL", "Prolog", "HTML"]
+                ["SQL", "Prolog", "HTML"],
             ),
             (
                 "Event-Driven",
                 "Programs respond to events and user actions",
-                ["JavaScript", "Visual Basic"]
+                ["JavaScript", "Visual Basic"],
             ),
             (
                 "Concurrent",
                 "Programs with multiple simultaneous execution paths",
-                ["Go", "Erlang", "Rust"]
+                ["Go", "Erlang", "Rust"],
             ),
             (
                 "Reactive",
                 "Programs built around data streams and propagation",
-                ["RxJS", "ReactiveX"]
+                ["RxJS", "ReactiveX"],
             ),
-            (
-                "Logic",
-                "Programs based on formal logic",
-                ["Prolog", "Datalog"]
-            ),
+            ("Logic", "Programs based on formal logic", ["Prolog", "Datalog"]),
         ]
 
         for name, description, examples in paradigms:
             concept = self.create_concept(
-                name=f"{name} Programming",
-                concept_type=ConceptType.THEORY,
-                description=description
+                name=f"{name} Programming", concept_type=ConceptType.THEORY, description=description
             )
             concept.metadata["example_languages"] = examples
 
@@ -183,14 +161,11 @@ class CodeDomain(KnowledgeDomain):
 
         for name, description, access_time, insert_time in structures:
             concept = self.create_concept(
-                name=name,
-                concept_type=ConceptType.DEFINITION,
-                description=description
+                name=name, concept_type=ConceptType.DEFINITION, description=description
             )
-            concept.metadata.update({
-                "access_complexity": access_time,
-                "insert_complexity": insert_time
-            })
+            concept.metadata.update(
+                {"access_complexity": access_time, "insert_complexity": insert_time}
+            )
 
     def initialize_algorithms(self) -> None:
         """Initialize fundamental algorithms."""
@@ -202,21 +177,26 @@ class CodeDomain(KnowledgeDomain):
             ("Depth-First Search", "Graph traversal going deep first", "O(V+E)", "Graph"),
             ("Breadth-First Search", "Graph traversal level by level", "O(V+E)", "Graph"),
             ("Dijkstra's Algorithm", "Shortest path in weighted graph", "O(V²)", "Graph"),
-            ("Dynamic Programming", "Solve by combining subproblem solutions", "Varies", "Optimization"),
-            ("Greedy Algorithm", "Local optimal choices for global solution", "Varies", "Optimization"),
+            (
+                "Dynamic Programming",
+                "Solve by combining subproblem solutions",
+                "Varies",
+                "Optimization",
+            ),
+            (
+                "Greedy Algorithm",
+                "Local optimal choices for global solution",
+                "Varies",
+                "Optimization",
+            ),
             ("Backtracking", "Incremental solution with backtracking", "Varies", "Search"),
         ]
 
         for name, description, complexity, category in algorithms:
             concept = self.create_concept(
-                name=name,
-                concept_type=ConceptType.MODEL,
-                description=description
+                name=name, concept_type=ConceptType.MODEL, description=description
             )
-            concept.metadata.update({
-                "time_complexity": complexity,
-                "category": category
-            })
+            concept.metadata.update({"time_complexity": complexity, "category": category})
 
     def initialize_design_patterns(self) -> None:
         """Initialize common design patterns."""
@@ -226,14 +206,12 @@ class CodeDomain(KnowledgeDomain):
             ("Factory", "Create objects without specifying exact class", "Creational"),
             ("Builder", "Construct complex objects step by step", "Creational"),
             ("Prototype", "Create objects by cloning", "Creational"),
-
             # Structural
             ("Adapter", "Convert interface to another interface", "Structural"),
             ("Decorator", "Add behavior dynamically", "Structural"),
             ("Facade", "Simplified interface to complex subsystem", "Structural"),
             ("Proxy", "Placeholder for another object", "Structural"),
             ("Composite", "Treat objects and compositions uniformly", "Structural"),
-
             # Behavioral
             ("Observer", "Notify dependents of state changes", "Behavioral"),
             ("Strategy", "Encapsulate interchangeable algorithms", "Behavioral"),
@@ -244,9 +222,7 @@ class CodeDomain(KnowledgeDomain):
 
         for name, description, category in patterns:
             concept = self.create_concept(
-                name=f"{name} Pattern",
-                concept_type=ConceptType.MODEL,
-                description=description
+                name=f"{name} Pattern", concept_type=ConceptType.MODEL, description=description
             )
             concept.metadata["pattern_category"] = category
 
@@ -269,14 +245,9 @@ class CodeDomain(KnowledgeDomain):
 
         for name, description, year, paradigms in languages:
             concept = self.create_concept(
-                name=name,
-                concept_type=ConceptType.DEFINITION,
-                description=description
+                name=name, concept_type=ConceptType.DEFINITION, description=description
             )
-            concept.metadata.update({
-                "year_created": year,
-                "paradigms": paradigms
-            })
+            concept.metadata.update({"year_created": year, "paradigms": paradigms})
 
     def demonstrate_code_balance(self) -> dict[str, Any]:
         """
@@ -289,30 +260,30 @@ class CodeDomain(KnowledgeDomain):
                 "abstraction_implementation": {
                     "abstraction": 50.0,
                     "implementation": 50.0,
-                    "meaning": "Design should balance high-level concepts with practical code"
+                    "meaning": "Design should balance high-level concepts with practical code",
                 },
                 "flexibility_simplicity": {
                     "flexibility": 50.0,
                     "simplicity": 50.0,
-                    "meaning": "Code should be adaptable but not over-engineered"
+                    "meaning": "Code should be adaptable but not over-engineered",
                 },
                 "performance_readability": {
                     "performance": 50.0,
                     "readability": 50.0,
-                    "meaning": "Optimize where needed, prioritize clarity elsewhere"
+                    "meaning": "Optimize where needed, prioritize clarity elsewhere",
                 },
                 "testing_development": {
                     "testing": 50.0,
                     "development": 50.0,
-                    "meaning": "Tests and code should grow together"
-                }
+                    "meaning": "Tests and code should grow together",
+                },
             },
             "operational_ratio": {
                 "structure": 52.0,
                 "flexibility": 48.0,
-                "meaning": "Slight structural bias enables maintainability"
+                "meaning": "Slight structural bias enables maintainability",
             },
-            "meta_meaning": "Good code maintains equilibrium between competing concerns"
+            "meta_meaning": "Good code maintains equilibrium between competing concerns",
         }
 
     def get_complexity_classes(self) -> dict[str, str]:
@@ -330,8 +301,7 @@ class CodeDomain(KnowledgeDomain):
 
 
 def create_code_domain(
-    meta_equilibrium: MetaEquilibrium | None = None,
-    initialize_all: bool = True
+    meta_equilibrium: MetaEquilibrium | None = None, initialize_all: bool = True
 ) -> CodeDomain:
     """
     Factory function to create a fully initialized code domain.

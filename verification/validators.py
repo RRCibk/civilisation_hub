@@ -5,30 +5,30 @@ Specialized validators for different data types and structures.
 All validators produce balanced results aligned with META 50/50.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Generic, TypeVar
-from uuid import UUID
+from typing import Any, Generic, TypeVar
 
 from core.equilibrium import MetaEquilibrium
-from core.proportions import ProportionValidator, Ratio
-
 
 T = TypeVar("T")
 
 
 class ValidationSeverity(Enum):
     """Severity levels for validation issues."""
-    INFO = "info"            # Informational
-    WARNING = "warning"      # Warning, non-blocking
-    ERROR = "error"          # Error, blocking
-    CRITICAL = "critical"    # Critical, system failure
+
+    INFO = "info"  # Informational
+    WARNING = "warning"  # Warning, non-blocking
+    ERROR = "error"  # Error, blocking
+    CRITICAL = "critical"  # Critical, system failure
 
 
 @dataclass
 class ValidationIssue:
     """A single validation issue."""
+
     code: str
     message: str
     severity: ValidationSeverity
@@ -41,13 +41,14 @@ class ValidationIssue:
             "message": self.message,
             "severity": self.severity.value,
             "field": self.field,
-            "value": str(self.value) if self.value is not None else None
+            "value": str(self.value) if self.value is not None else None,
         }
 
 
 @dataclass
 class ValidationReport:
     """Complete validation report."""
+
     valid: bool
     issues: list[ValidationIssue]
     score: float  # 0-100
@@ -55,7 +56,11 @@ class ValidationReport:
 
     @property
     def error_count(self) -> int:
-        return sum(1 for i in self.issues if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL])
+        return sum(
+            1
+            for i in self.issues
+            if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]
+        )
 
     @property
     def warning_count(self) -> int:
@@ -68,7 +73,7 @@ class ValidationReport:
             "errors": self.error_count,
             "warnings": self.warning_count,
             "issues": [i.to_dict() for i in self.issues],
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": self.timestamp.isoformat(),
         }
 
 
@@ -99,18 +104,10 @@ class BaseValidator(Generic[T]):
         raise NotImplementedError("Subclasses must implement validate()")
 
     def _create_report(
-        self,
-        valid: bool,
-        issues: list[ValidationIssue],
-        score: float
+        self, valid: bool, issues: list[ValidationIssue], score: float
     ) -> ValidationReport:
         """Create a validation report."""
-        return ValidationReport(
-            valid=valid,
-            issues=issues,
-            score=score,
-            timestamp=datetime.now()
-        )
+        return ValidationReport(valid=valid, issues=issues, score=score, timestamp=datetime.now())
 
 
 class BalanceValidator(BaseValidator[dict]):
@@ -133,21 +130,25 @@ class BalanceValidator(BaseValidator[dict]):
 
         # Check required fields
         if "positive" not in data:
-            issues.append(ValidationIssue(
-                code="MISSING_POSITIVE",
-                message="Missing 'positive' field",
-                severity=ValidationSeverity.ERROR,
-                field="positive"
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="MISSING_POSITIVE",
+                    message="Missing 'positive' field",
+                    severity=ValidationSeverity.ERROR,
+                    field="positive",
+                )
+            )
             score -= 50
 
         if "negative" not in data:
-            issues.append(ValidationIssue(
-                code="MISSING_NEGATIVE",
-                message="Missing 'negative' field",
-                severity=ValidationSeverity.ERROR,
-                field="negative"
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="MISSING_NEGATIVE",
+                    message="Missing 'negative' field",
+                    severity=ValidationSeverity.ERROR,
+                    field="negative",
+                )
+            )
             score -= 50
 
         if score < 100:
@@ -158,23 +159,27 @@ class BalanceValidator(BaseValidator[dict]):
 
         # Check types
         if not isinstance(positive, (int, float)):
-            issues.append(ValidationIssue(
-                code="INVALID_TYPE",
-                message="'positive' must be numeric",
-                severity=ValidationSeverity.ERROR,
-                field="positive",
-                value=positive
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="INVALID_TYPE",
+                    message="'positive' must be numeric",
+                    severity=ValidationSeverity.ERROR,
+                    field="positive",
+                    value=positive,
+                )
+            )
             score -= 30
 
         if not isinstance(negative, (int, float)):
-            issues.append(ValidationIssue(
-                code="INVALID_TYPE",
-                message="'negative' must be numeric",
-                severity=ValidationSeverity.ERROR,
-                field="negative",
-                value=negative
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="INVALID_TYPE",
+                    message="'negative' must be numeric",
+                    severity=ValidationSeverity.ERROR,
+                    field="negative",
+                    value=negative,
+                )
+            )
             score -= 30
 
         if issues:
@@ -182,23 +187,27 @@ class BalanceValidator(BaseValidator[dict]):
 
         # Check non-negative
         if positive < 0:
-            issues.append(ValidationIssue(
-                code="NEGATIVE_VALUE",
-                message="'positive' cannot be negative",
-                severity=ValidationSeverity.ERROR,
-                field="positive",
-                value=positive
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="NEGATIVE_VALUE",
+                    message="'positive' cannot be negative",
+                    severity=ValidationSeverity.ERROR,
+                    field="positive",
+                    value=positive,
+                )
+            )
             score -= 20
 
         if negative < 0:
-            issues.append(ValidationIssue(
-                code="NEGATIVE_VALUE",
-                message="'negative' cannot be negative",
-                severity=ValidationSeverity.ERROR,
-                field="negative",
-                value=negative
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="NEGATIVE_VALUE",
+                    message="'negative' cannot be negative",
+                    severity=ValidationSeverity.ERROR,
+                    field="negative",
+                    value=negative,
+                )
+            )
             score -= 20
 
         if issues:
@@ -209,16 +218,27 @@ class BalanceValidator(BaseValidator[dict]):
         if not is_balanced:
             balance = self._meta.calculate_balance(positive, negative)
             deviation = abs(balance[0] - 50)
-            issues.append(ValidationIssue(
-                code="UNBALANCED",
-                message=f"Not META 50/50 balanced: {balance[0]:.2f}/{balance[1]:.2f}",
-                severity=ValidationSeverity.ERROR,
-                field="balance",
-                value=balance
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="UNBALANCED",
+                    message=f"Not META 50/50 balanced: {balance[0]:.2f}/{balance[1]:.2f}",
+                    severity=ValidationSeverity.ERROR,
+                    field="balance",
+                    value=balance,
+                )
+            )
             score -= deviation * 2
 
-        valid = len([i for i in issues if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]]) == 0
+        valid = (
+            len(
+                [
+                    i
+                    for i in issues
+                    if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]
+                ]
+            )
+            == 0
+        )
         return self._create_report(valid, issues, max(0, score))
 
 
@@ -242,24 +262,28 @@ class ProportionRatioValidator(BaseValidator[dict]):
         score = 100.0
 
         if "numerator" not in data or "denominator" not in data:
-            issues.append(ValidationIssue(
-                code="MISSING_FIELDS",
-                message="Missing 'numerator' or 'denominator'",
-                severity=ValidationSeverity.ERROR
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="MISSING_FIELDS",
+                    message="Missing 'numerator' or 'denominator'",
+                    severity=ValidationSeverity.ERROR,
+                )
+            )
             return self._create_report(False, issues, 0)
 
         num = data["numerator"]
         den = data["denominator"]
 
         if den == 0:
-            issues.append(ValidationIssue(
-                code="ZERO_DENOMINATOR",
-                message="Denominator cannot be zero",
-                severity=ValidationSeverity.CRITICAL,
-                field="denominator",
-                value=0
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="ZERO_DENOMINATOR",
+                    message="Denominator cannot be zero",
+                    severity=ValidationSeverity.CRITICAL,
+                    field="denominator",
+                    value=0,
+                )
+            )
             return self._create_report(False, issues, 0)
 
         # Calculate actual ratio
@@ -271,16 +295,29 @@ class ProportionRatioValidator(BaseValidator[dict]):
         deviation_den = abs(actual_ratio[1] - self._expected[1])
 
         if deviation_num > 0.5 or deviation_den > 0.5:
-            issues.append(ValidationIssue(
-                code="RATIO_MISMATCH",
-                message=f"Ratio {actual_ratio[0]:.2f}/{actual_ratio[1]:.2f} differs from expected {self._expected[0]}/{self._expected[1]}",
-                severity=ValidationSeverity.WARNING if deviation_num < 5 else ValidationSeverity.ERROR,
-                field="ratio",
-                value=actual_ratio
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="RATIO_MISMATCH",
+                    message=f"Ratio {actual_ratio[0]:.2f}/{actual_ratio[1]:.2f} differs from expected {self._expected[0]}/{self._expected[1]}",
+                    severity=ValidationSeverity.WARNING
+                    if deviation_num < 5
+                    else ValidationSeverity.ERROR,
+                    field="ratio",
+                    value=actual_ratio,
+                )
+            )
             score -= (deviation_num + deviation_den) * 2
 
-        valid = len([i for i in issues if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]]) == 0
+        valid = (
+            len(
+                [
+                    i
+                    for i in issues
+                    if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]
+                ]
+            )
+            == 0
+        )
         return self._create_report(valid, issues, max(0, score))
 
 
@@ -306,24 +343,37 @@ class SchemaValidator(BaseValidator[dict]):
 
         for field, expected_type in self._schema.items():
             if field not in data:
-                issues.append(ValidationIssue(
-                    code="MISSING_FIELD",
-                    message=f"Missing required field: {field}",
-                    severity=ValidationSeverity.ERROR,
-                    field=field
-                ))
+                issues.append(
+                    ValidationIssue(
+                        code="MISSING_FIELD",
+                        message=f"Missing required field: {field}",
+                        severity=ValidationSeverity.ERROR,
+                        field=field,
+                    )
+                )
                 score -= field_weight
             elif not isinstance(data[field], expected_type):
-                issues.append(ValidationIssue(
-                    code="TYPE_MISMATCH",
-                    message=f"Field '{field}' expected {expected_type}, got {type(data[field])}",
-                    severity=ValidationSeverity.ERROR,
-                    field=field,
-                    value=data[field]
-                ))
+                issues.append(
+                    ValidationIssue(
+                        code="TYPE_MISMATCH",
+                        message=f"Field '{field}' expected {expected_type}, got {type(data[field])}",
+                        severity=ValidationSeverity.ERROR,
+                        field=field,
+                        value=data[field],
+                    )
+                )
                 score -= field_weight
 
-        valid = len([i for i in issues if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]]) == 0
+        valid = (
+            len(
+                [
+                    i
+                    for i in issues
+                    if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]
+                ]
+            )
+            == 0
+        )
         return self._create_report(valid, issues, max(0, score))
 
 
@@ -333,10 +383,7 @@ class RangeValidator(BaseValidator[float]):
     """
 
     def __init__(
-        self,
-        min_value: float | None = None,
-        max_value: float | None = None,
-        name: str = "range"
+        self, min_value: float | None = None, max_value: float | None = None, name: str = "range"
     ):
         super().__init__(name)
         self._min = min_value
@@ -348,35 +395,50 @@ class RangeValidator(BaseValidator[float]):
         score = 100.0
 
         if not isinstance(data, (int, float)):
-            issues.append(ValidationIssue(
-                code="INVALID_TYPE",
-                message=f"Expected numeric value, got {type(data)}",
-                severity=ValidationSeverity.ERROR,
-                value=data
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="INVALID_TYPE",
+                    message=f"Expected numeric value, got {type(data)}",
+                    severity=ValidationSeverity.ERROR,
+                    value=data,
+                )
+            )
             return self._create_report(False, issues, 0)
 
         if self._min is not None and data < self._min:
             deviation = self._min - data
-            issues.append(ValidationIssue(
-                code="BELOW_MINIMUM",
-                message=f"Value {data} is below minimum {self._min}",
-                severity=ValidationSeverity.ERROR,
-                value=data
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="BELOW_MINIMUM",
+                    message=f"Value {data} is below minimum {self._min}",
+                    severity=ValidationSeverity.ERROR,
+                    value=data,
+                )
+            )
             score -= min(50, deviation / abs(self._min) * 100 if self._min != 0 else 50)
 
         if self._max is not None and data > self._max:
             deviation = data - self._max
-            issues.append(ValidationIssue(
-                code="ABOVE_MAXIMUM",
-                message=f"Value {data} is above maximum {self._max}",
-                severity=ValidationSeverity.ERROR,
-                value=data
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="ABOVE_MAXIMUM",
+                    message=f"Value {data} is above maximum {self._max}",
+                    severity=ValidationSeverity.ERROR,
+                    value=data,
+                )
+            )
             score -= min(50, deviation / abs(self._max) * 100 if self._max != 0 else 50)
 
-        valid = len([i for i in issues if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]]) == 0
+        valid = (
+            len(
+                [
+                    i
+                    for i in issues
+                    if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]
+                ]
+            )
+            == 0
+        )
         return self._create_report(valid, issues, max(0, score))
 
 
@@ -390,10 +452,7 @@ class CompositeValidator(BaseValidator[Any]):
         self._validators: list[tuple[str, BaseValidator, Callable[[Any], Any] | None]] = []
 
     def add_validator(
-        self,
-        name: str,
-        validator: BaseValidator,
-        extractor: Callable[[Any], Any] | None = None
+        self, name: str, validator: BaseValidator, extractor: Callable[[Any], Any] | None = None
     ) -> "CompositeValidator":
         """
         Add a validator to the composite.
@@ -425,15 +484,26 @@ class CompositeValidator(BaseValidator[Any]):
                 all_issues.extend(report.issues)
                 total_score += report.score
             except Exception as e:
-                all_issues.append(ValidationIssue(
-                    code="VALIDATOR_ERROR",
-                    message=f"Validator '{name}' failed: {str(e)}",
-                    severity=ValidationSeverity.ERROR
-                ))
+                all_issues.append(
+                    ValidationIssue(
+                        code="VALIDATOR_ERROR",
+                        message=f"Validator '{name}' failed: {str(e)}",
+                        severity=ValidationSeverity.ERROR,
+                    )
+                )
                 total_score += 0
 
         avg_score = total_score / validator_count
-        valid = len([i for i in all_issues if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]]) == 0
+        valid = (
+            len(
+                [
+                    i
+                    for i in all_issues
+                    if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]
+                ]
+            )
+            == 0
+        )
         return self._create_report(valid, all_issues, avg_score)
 
 
@@ -464,51 +534,70 @@ class MetaEquilibriumValidator(BaseValidator[Any]):
                 is_balanced = self._meta.verify_balance(data["positive"], data["negative"])
                 if not is_balanced:
                     balance = self._meta.calculate_balance(data["positive"], data["negative"])
-                    issues.append(ValidationIssue(
-                        code="META_VIOLATION",
-                        message=f"META 50/50 violated: {balance[0]:.2f}/{balance[1]:.2f}",
-                        severity=ValidationSeverity.ERROR,
-                        value=balance
-                    ))
+                    issues.append(
+                        ValidationIssue(
+                            code="META_VIOLATION",
+                            message=f"META 50/50 violated: {balance[0]:.2f}/{balance[1]:.2f}",
+                            severity=ValidationSeverity.ERROR,
+                            value=balance,
+                        )
+                    )
                     score -= abs(balance[0] - 50) * 2
 
         elif hasattr(data, "is_balanced"):
             if not data.is_balanced:
                 if hasattr(data, "balance"):
                     balance = data.balance
-                    issues.append(ValidationIssue(
-                        code="META_VIOLATION",
-                        message=f"Object not balanced: {balance[0]:.2f}/{balance[1]:.2f}",
-                        severity=ValidationSeverity.ERROR,
-                        value=balance
-                    ))
+                    issues.append(
+                        ValidationIssue(
+                            code="META_VIOLATION",
+                            message=f"Object not balanced: {balance[0]:.2f}/{balance[1]:.2f}",
+                            severity=ValidationSeverity.ERROR,
+                            value=balance,
+                        )
+                    )
                     score -= abs(balance[0] - 50) * 2
                 else:
-                    issues.append(ValidationIssue(
-                        code="META_VIOLATION",
-                        message="Object is not balanced",
-                        severity=ValidationSeverity.ERROR
-                    ))
+                    issues.append(
+                        ValidationIssue(
+                            code="META_VIOLATION",
+                            message="Object is not balanced",
+                            severity=ValidationSeverity.ERROR,
+                        )
+                    )
                     score = 0
 
         elif hasattr(data, "balance"):
             balance = data.balance
             if balance[0] != 50.0 or balance[1] != 50.0:
-                issues.append(ValidationIssue(
-                    code="META_VIOLATION",
-                    message=f"Balance is {balance[0]:.2f}/{balance[1]:.2f}, expected 50/50",
-                    severity=ValidationSeverity.ERROR,
-                    value=balance
-                ))
+                issues.append(
+                    ValidationIssue(
+                        code="META_VIOLATION",
+                        message=f"Balance is {balance[0]:.2f}/{balance[1]:.2f}, expected 50/50",
+                        severity=ValidationSeverity.ERROR,
+                        value=balance,
+                    )
+                )
                 score -= abs(balance[0] - 50) * 2
 
         else:
-            issues.append(ValidationIssue(
-                code="UNKNOWN_FORMAT",
-                message="Cannot determine balance from data format",
-                severity=ValidationSeverity.WARNING
-            ))
+            issues.append(
+                ValidationIssue(
+                    code="UNKNOWN_FORMAT",
+                    message="Cannot determine balance from data format",
+                    severity=ValidationSeverity.WARNING,
+                )
+            )
             score -= 10
 
-        valid = len([i for i in issues if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]]) == 0
+        valid = (
+            len(
+                [
+                    i
+                    for i in issues
+                    if i.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]
+                ]
+            )
+            == 0
+        )
         return self._create_report(valid, issues, max(0, score))

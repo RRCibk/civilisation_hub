@@ -4,25 +4,25 @@ Output Module
 Output formatting and display utilities.
 """
 
-from output.formatters import (
-    OutputFormat,
-    Formatter,
-    TextFormatter,
-    JsonFormatter,
-    MarkdownFormatter,
-    TableFormatter,
-    create_formatter,
-)
 from output.display import (
-    Display,
     ConsoleDisplay,
+    Display,
     DisplayStyle,
 )
+from output.formatters import (
+    Formatter,
+    JsonFormatter,
+    MarkdownFormatter,
+    OutputFormat,
+    TableFormatter,
+    TextFormatter,
+    create_formatter,
+)
 from output.reporters import (
-    Reporter,
     DomainReporter,
     EquilibriumReporter,
     EvolutionReporter,
+    Reporter,
     SystemReporter,
 )
 

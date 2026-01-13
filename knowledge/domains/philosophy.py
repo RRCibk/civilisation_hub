@@ -6,17 +6,14 @@ Fundamental duality: Being/Non-Being (existence/void, thesis/antithesis).
 """
 
 from typing import Any
-from uuid import UUID
 
-from models.domain import DomainType
 from core.equilibrium import MetaEquilibrium
 from knowledge.domains.base import (
-    KnowledgeDomain,
-    Concept,
     ConceptType,
-    ConceptRelation,
+    KnowledgeDomain,
     RelationType,
 )
+from models.domain import DomainType
 
 
 class PhilosophyDomain(KnowledgeDomain):
@@ -40,7 +37,7 @@ class PhilosophyDomain(KnowledgeDomain):
             name="Philosophy",
             domain_type=DomainType.FUNDAMENTAL,
             description="The study of fundamental nature of reality, knowledge, and existence",
-            meta_equilibrium=meta_equilibrium
+            meta_equilibrium=meta_equilibrium,
         )
 
     def _initialize_duality(self) -> None:
@@ -50,45 +47,24 @@ class PhilosophyDomain(KnowledgeDomain):
             positive_value=50,
             negative_name="non_being",
             negative_value=50,
-            duality_name="philosophy_duality"
+            duality_name="philosophy_duality",
         )
         self._domain.activate()
 
     def _initialize_axioms(self) -> None:
         """Initialize fundamental philosophical principles as axioms."""
         principles = [
-            (
-                "Cogito Ergo Sum",
-                "I think, therefore I am - the foundation of rational certainty"
-            ),
+            ("Cogito Ergo Sum", "I think, therefore I am - the foundation of rational certainty"),
             (
                 "Principle of Sufficient Reason",
-                "Everything must have a reason or cause for its existence"
+                "Everything must have a reason or cause for its existence",
             ),
-            (
-                "Law of Identity",
-                "A thing is what it is (A = A)"
-            ),
-            (
-                "Law of Non-Contradiction",
-                "Nothing can both be and not be at the same time"
-            ),
-            (
-                "Law of Excluded Middle",
-                "Everything must either be or not be"
-            ),
-            (
-                "Categorical Imperative",
-                "Act only according to maxims universalizable as law"
-            ),
-            (
-                "Unity of Opposites",
-                "Reality arises from the tension of opposites"
-            ),
-            (
-                "The Examined Life",
-                "The unexamined life is not worth living"
-            ),
+            ("Law of Identity", "A thing is what it is (A = A)"),
+            ("Law of Non-Contradiction", "Nothing can both be and not be at the same time"),
+            ("Law of Excluded Middle", "Everything must either be or not be"),
+            ("Categorical Imperative", "Act only according to maxims universalizable as law"),
+            ("Unity of Opposites", "Reality arises from the tension of opposites"),
+            ("The Examined Life", "The unexamined life is not worth living"),
         ]
 
         for name, description in principles:
@@ -96,15 +72,27 @@ class PhilosophyDomain(KnowledgeDomain):
                 name=name,
                 concept_type=ConceptType.AXIOM,
                 description=description,
-                certainty=75  # Philosophical principles are debated
+                certainty=75,  # Philosophical principles are debated
             )
 
     def get_fundamental_concepts(self) -> list[str]:
         """Get fundamental philosophy concepts."""
         return [
-            "Being", "Truth", "Knowledge", "Reality", "Mind",
-            "Consciousness", "Free Will", "Ethics", "Beauty", "Justice",
-            "Meaning", "Time", "Space", "Causality", "Self"
+            "Being",
+            "Truth",
+            "Knowledge",
+            "Reality",
+            "Mind",
+            "Consciousness",
+            "Free Will",
+            "Ethics",
+            "Beauty",
+            "Justice",
+            "Meaning",
+            "Time",
+            "Space",
+            "Causality",
+            "Self",
         ]
 
     def initialize_branches(self) -> None:
@@ -113,63 +101,39 @@ class PhilosophyDomain(KnowledgeDomain):
             (
                 "Metaphysics",
                 "Study of the nature of reality, existence, and being",
-                ConceptType.THEORY
+                ConceptType.THEORY,
             ),
-            (
-                "Epistemology",
-                "Study of knowledge, belief, and justification",
-                ConceptType.THEORY
-            ),
-            (
-                "Ethics",
-                "Study of moral principles and conduct",
-                ConceptType.THEORY
-            ),
-            (
-                "Logic",
-                "Study of valid reasoning and argumentation",
-                ConceptType.THEORY
-            ),
-            (
-                "Aesthetics",
-                "Study of beauty, art, and taste",
-                ConceptType.THEORY
-            ),
+            ("Epistemology", "Study of knowledge, belief, and justification", ConceptType.THEORY),
+            ("Ethics", "Study of moral principles and conduct", ConceptType.THEORY),
+            ("Logic", "Study of valid reasoning and argumentation", ConceptType.THEORY),
+            ("Aesthetics", "Study of beauty, art, and taste", ConceptType.THEORY),
             (
                 "Political Philosophy",
                 "Study of governance, justice, and rights",
-                ConceptType.THEORY
+                ConceptType.THEORY,
             ),
             (
                 "Philosophy of Mind",
                 "Study of consciousness and mental phenomena",
-                ConceptType.THEORY
+                ConceptType.THEORY,
             ),
             (
                 "Philosophy of Science",
                 "Study of foundations and methods of science",
-                ConceptType.THEORY
+                ConceptType.THEORY,
             ),
             (
                 "Philosophy of Language",
                 "Study of meaning, reference, and communication",
-                ConceptType.THEORY
+                ConceptType.THEORY,
             ),
-            (
-                "Existentialism",
-                "Study of individual existence and meaning",
-                ConceptType.THEORY
-            ),
+            ("Existentialism", "Study of individual existence and meaning", ConceptType.THEORY),
             (
                 "Phenomenology",
                 "Study of structures of experience and consciousness",
-                ConceptType.THEORY
+                ConceptType.THEORY,
             ),
-            (
-                "Ontology",
-                "Study of being and what exists",
-                ConceptType.THEORY
-            ),
+            ("Ontology", "Study of being and what exists", ConceptType.THEORY),
         ]
 
         for name, description, concept_type in branches:
@@ -184,14 +148,12 @@ class PhilosophyDomain(KnowledgeDomain):
             ("Stoicism", "Virtue through reason and acceptance", "Ancient"),
             ("Epicureanism", "Pleasure and absence of pain", "Ancient"),
             ("Skepticism", "Suspension of judgment", "Ancient"),
-
             # Modern
             ("Rationalism", "Knowledge through reason alone", "Modern"),
             ("Empiricism", "Knowledge through sensory experience", "Modern"),
             ("Idealism", "Reality is fundamentally mental", "Modern"),
             ("Materialism", "Reality is fundamentally physical", "Modern"),
             ("Dualism", "Mind and body are distinct substances", "Modern"),
-
             # Contemporary
             ("Pragmatism", "Truth is what works in practice", "Contemporary"),
             ("Existentialism", "Existence precedes essence", "Contemporary"),
@@ -202,9 +164,7 @@ class PhilosophyDomain(KnowledgeDomain):
 
         for name, description, era in schools:
             concept = self.create_concept(
-                name=name,
-                concept_type=ConceptType.THEORY,
-                description=description
+                name=name, concept_type=ConceptType.THEORY, description=description
             )
             concept.metadata["era"] = era
 
@@ -231,13 +191,11 @@ class PhilosophyDomain(KnowledgeDomain):
             concept = self.create_concept(
                 name=name,
                 concept_type=ConceptType.DEFINITION,
-                description=f"{nationality} philosopher ({years})"
+                description=f"{nationality} philosopher ({years})",
             )
-            concept.metadata.update({
-                "years": years,
-                "nationality": nationality,
-                "key_contributions": contributions
-            })
+            concept.metadata.update(
+                {"years": years, "nationality": nationality, "key_contributions": contributions}
+            )
 
     def initialize_thought_experiments(self) -> None:
         """Initialize famous philosophical thought experiments."""
@@ -245,50 +203,32 @@ class PhilosophyDomain(KnowledgeDomain):
             (
                 "Trolley Problem",
                 "Should you divert a trolley to kill one instead of five?",
-                "Ethics"
+                "Ethics",
             ),
             (
                 "Ship of Theseus",
                 "Is a ship with all parts replaced still the same ship?",
-                "Identity"
+                "Identity",
             ),
-            (
-                "Brain in a Vat",
-                "How do we know we're not brains in vats?",
-                "Epistemology"
-            ),
-            (
-                "Chinese Room",
-                "Can a computer truly understand language?",
-                "Philosophy of Mind"
-            ),
-            (
-                "Mary's Room",
-                "Can knowledge be non-physical?",
-                "Consciousness"
-            ),
-            (
-                "Plato's Cave",
-                "Are we seeing reality or shadows?",
-                "Metaphysics"
-            ),
+            ("Brain in a Vat", "How do we know we're not brains in vats?", "Epistemology"),
+            ("Chinese Room", "Can a computer truly understand language?", "Philosophy of Mind"),
+            ("Mary's Room", "Can knowledge be non-physical?", "Consciousness"),
+            ("Plato's Cave", "Are we seeing reality or shadows?", "Metaphysics"),
             (
                 "Zeno's Paradoxes",
                 "Can motion exist if space is infinitely divisible?",
-                "Metaphysics"
+                "Metaphysics",
             ),
             (
                 "The Veil of Ignorance",
                 "What principles would you choose not knowing your place?",
-                "Political Philosophy"
+                "Political Philosophy",
             ),
         ]
 
         for name, question, domain in experiments:
             concept = self.create_concept(
-                name=name,
-                concept_type=ConceptType.HYPOTHESIS,
-                description=question
+                name=name, concept_type=ConceptType.HYPOTHESIS, description=question
             )
             concept.metadata["philosophical_domain"] = domain
 
@@ -307,17 +247,17 @@ class PhilosophyDomain(KnowledgeDomain):
             ("Good", "Evil", "The moral duality"),
         ]
 
-        for positive, negative, description in pairs:
+        for positive, negative, _description in pairs:
             # Create both concepts
             pos_concept = self.create_concept(
                 name=positive,
                 concept_type=ConceptType.DEFINITION,
-                description=f"Positive pole in the {positive}/{negative} duality"
+                description=f"Positive pole in the {positive}/{negative} duality",
             )
             neg_concept = self.create_concept(
                 name=negative,
                 concept_type=ConceptType.DEFINITION,
-                description=f"Negative pole in the {positive}/{negative} duality"
+                description=f"Negative pole in the {positive}/{negative} duality",
             )
 
             # Create dialectical relation
@@ -325,7 +265,7 @@ class PhilosophyDomain(KnowledgeDomain):
                 pos_concept,
                 neg_concept,
                 RelationType.CONTRADICTS,
-                strength=50  # Balanced opposition
+                strength=50,  # Balanced opposition
             )
 
     def demonstrate_philosophical_balance(self) -> dict[str, Any]:
@@ -340,25 +280,25 @@ class PhilosophyDomain(KnowledgeDomain):
                     "thesis": 50.0,
                     "antithesis": 50.0,
                     "synthesis": "Emerges from balanced opposition",
-                    "meaning": "Progress through reconciliation of opposites"
+                    "meaning": "Progress through reconciliation of opposites",
                 },
                 "being_non_being": {
                     "being": 50.0,
                     "non_being": 50.0,
-                    "meaning": "Existence defined against its negation"
+                    "meaning": "Existence defined against its negation",
                 },
                 "absolute_relative": {
                     "absolute": 50.0,
                     "relative": 50.0,
-                    "meaning": "Truth requires both perspectives"
-                }
+                    "meaning": "Truth requires both perspectives",
+                },
             },
             "balance_in_ethics": {
                 "justice": "Balance of competing interests",
                 "virtue": "Mean between extremes (Aristotle)",
-                "rights": "Balance of individual and collective"
+                "rights": "Balance of individual and collective",
             },
-            "meta_meaning": "Philosophy seeks equilibrium between opposing truths"
+            "meta_meaning": "Philosophy seeks equilibrium between opposing truths",
         }
 
     def get_logical_forms(self) -> dict[str, str]:
@@ -374,8 +314,7 @@ class PhilosophyDomain(KnowledgeDomain):
 
 
 def create_philosophy_domain(
-    meta_equilibrium: MetaEquilibrium | None = None,
-    initialize_all: bool = True
+    meta_equilibrium: MetaEquilibrium | None = None, initialize_all: bool = True
 ) -> PhilosophyDomain:
     """
     Factory function to create a fully initialized philosophy domain.

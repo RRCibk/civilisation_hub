@@ -1,23 +1,22 @@
 """Participation tracking package."""
 
+from participation.contributions import (
+    Contribution,
+    ContributionCategory,
+    ContributionManager,
+    ContributionMatcher,
+    ContributionPool,
+    ContributionStatus,
+)
 from participation.tracker import (
-    ParticipationType,
-    ParticipationLevel,
     EngagementState,
+    ParticipationLevel,
+    ParticipationMetrics,
     ParticipationRecord,
     ParticipationSnapshot,
     ParticipationState,
     ParticipationTracker,
-    ParticipationMetrics,
-)
-
-from participation.contributions import (
-    ContributionCategory,
-    ContributionStatus,
-    Contribution,
-    ContributionPool,
-    ContributionManager,
-    ContributionMatcher,
+    ParticipationType,
 )
 
 __all__ = [

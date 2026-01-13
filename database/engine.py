@@ -7,7 +7,7 @@ SQLAlchemy engine configuration and management.
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import create_engine, Engine, event
+from sqlalchemy import Engine, create_engine, event
 from sqlalchemy.pool import StaticPool
 
 from database.models import Base
@@ -20,10 +20,7 @@ class DatabaseEngine:
     """
 
     def __init__(
-        self,
-        database_url: str | None = None,
-        echo: bool = False,
-        in_memory: bool = False
+        self, database_url: str | None = None, echo: bool = False, in_memory: bool = False
     ):
         """
         Initialize database engine.
@@ -108,21 +105,25 @@ class DatabaseEngine:
     def get_table_names(self) -> list[str]:
         """Get list of table names in database."""
         from sqlalchemy import inspect
+
         inspector = inspect(self.engine)
         return inspector.get_table_names()
 
     def get_table_info(self, table_name: str) -> dict[str, Any]:
         """Get information about a specific table."""
         from sqlalchemy import inspect
+
         inspector = inspect(self.engine)
 
         columns = []
         for col in inspector.get_columns(table_name):
-            columns.append({
-                "name": col["name"],
-                "type": str(col["type"]),
-                "nullable": col["nullable"],
-            })
+            columns.append(
+                {
+                    "name": col["name"],
+                    "type": str(col["type"]),
+                    "nullable": col["nullable"],
+                }
+            )
 
         return {
             "name": table_name,
@@ -143,7 +144,7 @@ def get_engine(
     database_url: str | None = None,
     echo: bool = False,
     in_memory: bool = False,
-    reset: bool = False
+    reset: bool = False,
 ) -> DatabaseEngine:
     """
     Get or create the default database engine.
@@ -164,11 +165,7 @@ def get_engine(
         _default_engine = None
 
     if _default_engine is None:
-        _default_engine = DatabaseEngine(
-            database_url=database_url,
-            echo=echo,
-            in_memory=in_memory
-        )
+        _default_engine = DatabaseEngine(database_url=database_url, echo=echo, in_memory=in_memory)
 
     return _default_engine
 

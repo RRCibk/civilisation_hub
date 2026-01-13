@@ -6,17 +6,14 @@ Fundamental duality: Energy/Matter (wave/particle, potential/kinetic).
 """
 
 from typing import Any
-from uuid import UUID
 
-from models.domain import DomainType
 from core.equilibrium import MetaEquilibrium
 from knowledge.domains.base import (
-    KnowledgeDomain,
     Concept,
     ConceptType,
-    ConceptRelation,
-    RelationType,
+    KnowledgeDomain,
 )
+from models.domain import DomainType
 
 
 class PhysicsDomain(KnowledgeDomain):
@@ -38,7 +35,7 @@ class PhysicsDomain(KnowledgeDomain):
             name="Physics",
             domain_type=DomainType.FUNDAMENTAL,
             description="The study of matter, energy, and their interactions",
-            meta_equilibrium=meta_equilibrium
+            meta_equilibrium=meta_equilibrium,
         )
 
     def _initialize_duality(self) -> None:
@@ -48,69 +45,57 @@ class PhysicsDomain(KnowledgeDomain):
             positive_value=50,
             negative_name="matter",
             negative_value=50,
-            duality_name="physics_duality"
+            duality_name="physics_duality",
         )
         self._domain.activate()
 
     def _initialize_axioms(self) -> None:
         """Initialize fundamental physical laws as axioms."""
         laws = [
-            (
-                "Conservation of Energy",
-                "Energy cannot be created or destroyed, only transformed"
-            ),
-            (
-                "Conservation of Momentum",
-                "Total momentum in an isolated system remains constant"
-            ),
+            ("Conservation of Energy", "Energy cannot be created or destroyed, only transformed"),
+            ("Conservation of Momentum", "Total momentum in an isolated system remains constant"),
             (
                 "Conservation of Mass-Energy",
-                "Total mass-energy in an isolated system is conserved (E=mc²)"
+                "Total mass-energy in an isolated system is conserved (E=mc²)",
             ),
             (
                 "Newton's First Law",
-                "An object remains at rest or in uniform motion unless acted upon"
+                "An object remains at rest or in uniform motion unless acted upon",
             ),
-            (
-                "Newton's Second Law",
-                "Force equals mass times acceleration (F=ma)"
-            ),
-            (
-                "Newton's Third Law",
-                "Every action has an equal and opposite reaction"
-            ),
-            (
-                "Thermodynamic First Law",
-                "Energy is conserved in thermodynamic processes"
-            ),
-            (
-                "Thermodynamic Second Law",
-                "Entropy of an isolated system never decreases"
-            ),
+            ("Newton's Second Law", "Force equals mass times acceleration (F=ma)"),
+            ("Newton's Third Law", "Every action has an equal and opposite reaction"),
+            ("Thermodynamic First Law", "Energy is conserved in thermodynamic processes"),
+            ("Thermodynamic Second Law", "Entropy of an isolated system never decreases"),
             (
                 "Speed of Light Constancy",
-                "The speed of light in vacuum is constant for all observers"
+                "The speed of light in vacuum is constant for all observers",
             ),
-            (
-                "Uncertainty Principle",
-                "Position and momentum cannot both be precisely known"
-            ),
+            ("Uncertainty Principle", "Position and momentum cannot both be precisely known"),
         ]
 
         for name, description in laws:
             self.create_concept(
-                name=name,
-                concept_type=ConceptType.LAW,
-                description=description,
-                certainty=100
+                name=name, concept_type=ConceptType.LAW, description=description, certainty=100
             )
 
     def get_fundamental_concepts(self) -> list[str]:
         """Get fundamental physics concepts."""
         return [
-            "Mass", "Energy", "Force", "Momentum", "Velocity",
-            "Acceleration", "Space", "Time", "Charge", "Field",
-            "Wave", "Particle", "Quantum", "Relativity", "Entropy"
+            "Mass",
+            "Energy",
+            "Force",
+            "Momentum",
+            "Velocity",
+            "Acceleration",
+            "Space",
+            "Time",
+            "Charge",
+            "Field",
+            "Wave",
+            "Particle",
+            "Quantum",
+            "Relativity",
+            "Entropy",
         ]
 
     def initialize_branches(self) -> None:
@@ -137,12 +122,12 @@ class PhysicsDomain(KnowledgeDomain):
         """Initialize fundamental particles."""
         # Fermions (matter particles)
         quarks = [
-            ("Up Quark", "u", 2/3, 2.2),
-            ("Down Quark", "d", -1/3, 4.7),
-            ("Charm Quark", "c", 2/3, 1270),
-            ("Strange Quark", "s", -1/3, 96),
-            ("Top Quark", "t", 2/3, 173000),
-            ("Bottom Quark", "b", -1/3, 4180),
+            ("Up Quark", "u", 2 / 3, 2.2),
+            ("Down Quark", "d", -1 / 3, 4.7),
+            ("Charm Quark", "c", 2 / 3, 1270),
+            ("Strange Quark", "s", -1 / 3, 96),
+            ("Top Quark", "t", 2 / 3, 173000),
+            ("Bottom Quark", "b", -1 / 3, 4180),
         ]
 
         leptons = [
@@ -167,41 +152,37 @@ class PhysicsDomain(KnowledgeDomain):
             concept = self.create_concept(
                 name=name,
                 concept_type=ConceptType.DEFINITION,
-                description=f"Fundamental quark with charge {charge}"
+                description=f"Fundamental quark with charge {charge}",
             )
-            concept.metadata.update({
-                "symbol": symbol,
-                "charge": charge,
-                "mass_mev": mass,
-                "category": "quark"
-            })
+            concept.metadata.update(
+                {"symbol": symbol, "charge": charge, "mass_mev": mass, "category": "quark"}
+            )
 
         for name, symbol, charge, mass in leptons:
             concept = self.create_concept(
                 name=name,
                 concept_type=ConceptType.DEFINITION,
-                description=f"Fundamental lepton with charge {charge}"
+                description=f"Fundamental lepton with charge {charge}",
             )
-            concept.metadata.update({
-                "symbol": symbol,
-                "charge": charge,
-                "mass_mev": mass,
-                "category": "lepton"
-            })
+            concept.metadata.update(
+                {"symbol": symbol, "charge": charge, "mass_mev": mass, "category": "lepton"}
+            )
 
         for name, symbol, charge, mass, force in bosons:
             concept = self.create_concept(
                 name=name,
                 concept_type=ConceptType.DEFINITION,
-                description=f"Gauge boson mediating {force} force"
+                description=f"Gauge boson mediating {force} force",
             )
-            concept.metadata.update({
-                "symbol": symbol,
-                "charge": charge,
-                "mass_mev": mass,
-                "force": force,
-                "category": "boson"
-            })
+            concept.metadata.update(
+                {
+                    "symbol": symbol,
+                    "charge": charge,
+                    "mass_mev": mass,
+                    "force": force,
+                    "category": "boson",
+                }
+            )
 
     def initialize_fundamental_forces(self) -> None:
         """Initialize the four fundamental forces."""
@@ -210,56 +191,42 @@ class PhysicsDomain(KnowledgeDomain):
                 "Gravitational Force",
                 "Attractive force between masses",
                 "Graviton (hypothetical)",
-                1e-38  # Relative strength
+                1e-38,  # Relative strength
             ),
             (
                 "Electromagnetic Force",
                 "Force between charged particles",
                 "Photon",
-                1/137  # Fine structure constant
+                1 / 137,  # Fine structure constant
             ),
             (
                 "Strong Nuclear Force",
                 "Force binding quarks in nucleons",
                 "Gluon",
-                1.0  # Reference strength
+                1.0,  # Reference strength
             ),
             (
                 "Weak Nuclear Force",
                 "Force responsible for radioactive decay",
                 "W and Z Bosons",
-                1e-6  # Relative strength
+                1e-6,  # Relative strength
             ),
         ]
 
         for name, description, mediator, strength in forces:
             concept = self.create_concept(
-                name=name,
-                concept_type=ConceptType.PRINCIPLE,
-                description=description
+                name=name, concept_type=ConceptType.PRINCIPLE, description=description
             )
-            concept.metadata.update({
-                "mediator": mediator,
-                "relative_strength": strength
-            })
+            concept.metadata.update({"mediator": mediator, "relative_strength": strength})
 
     def add_equation(
-        self,
-        name: str,
-        equation: str,
-        description: str,
-        variables: dict[str, str]
+        self, name: str, equation: str, description: str, variables: dict[str, str]
     ) -> Concept:
         """Add a physics equation."""
         concept = self.create_concept(
-            name=name,
-            concept_type=ConceptType.LAW,
-            description=description
+            name=name, concept_type=ConceptType.LAW, description=description
         )
-        concept.metadata.update({
-            "equation": equation,
-            "variables": variables
-        })
+        concept.metadata.update({"equation": equation, "variables": variables})
         return concept
 
     def initialize_key_equations(self) -> None:
@@ -269,43 +236,47 @@ class PhysicsDomain(KnowledgeDomain):
                 "Mass-Energy Equivalence",
                 "E = mc²",
                 "Energy equals mass times speed of light squared",
-                {"E": "Energy", "m": "Mass", "c": "Speed of light"}
+                {"E": "Energy", "m": "Mass", "c": "Speed of light"},
             ),
             (
                 "Newton's Second Law",
                 "F = ma",
                 "Force equals mass times acceleration",
-                {"F": "Force", "m": "Mass", "a": "Acceleration"}
+                {"F": "Force", "m": "Mass", "a": "Acceleration"},
             ),
             (
                 "Kinetic Energy",
                 "KE = ½mv²",
                 "Energy of motion",
-                {"KE": "Kinetic energy", "m": "Mass", "v": "Velocity"}
+                {"KE": "Kinetic energy", "m": "Mass", "v": "Velocity"},
             ),
             (
                 "Gravitational Force",
                 "F = Gm₁m₂/r²",
                 "Newton's law of gravitation",
-                {"F": "Force", "G": "Gravitational constant", "m": "Mass", "r": "Distance"}
+                {"F": "Force", "G": "Gravitational constant", "m": "Mass", "r": "Distance"},
             ),
             (
                 "Coulomb's Law",
                 "F = kq₁q₂/r²",
                 "Electrostatic force between charges",
-                {"F": "Force", "k": "Coulomb constant", "q": "Charge", "r": "Distance"}
+                {"F": "Force", "k": "Coulomb constant", "q": "Charge", "r": "Distance"},
             ),
             (
                 "Schrödinger Equation",
                 "iℏ∂ψ/∂t = Ĥψ",
                 "Fundamental equation of quantum mechanics",
-                {"ψ": "Wave function", "Ĥ": "Hamiltonian", "ℏ": "Reduced Planck constant"}
+                {"ψ": "Wave function", "Ĥ": "Hamiltonian", "ℏ": "Reduced Planck constant"},
             ),
             (
                 "Heisenberg Uncertainty",
                 "ΔxΔp ≥ ℏ/2",
                 "Fundamental limit on precision of measurements",
-                {"Δx": "Position uncertainty", "Δp": "Momentum uncertainty", "ℏ": "Reduced Planck constant"}
+                {
+                    "Δx": "Position uncertainty",
+                    "Δp": "Momentum uncertainty",
+                    "ℏ": "Reduced Planck constant",
+                },
             ),
         ]
 
@@ -315,46 +286,14 @@ class PhysicsDomain(KnowledgeDomain):
     def get_physical_constants(self) -> dict[str, dict[str, Any]]:
         """Get fundamental physical constants."""
         return {
-            "speed_of_light": {
-                "value": 299792458,
-                "unit": "m/s",
-                "symbol": "c"
-            },
-            "planck_constant": {
-                "value": 6.62607015e-34,
-                "unit": "J·s",
-                "symbol": "h"
-            },
-            "gravitational_constant": {
-                "value": 6.67430e-11,
-                "unit": "m³/(kg·s²)",
-                "symbol": "G"
-            },
-            "elementary_charge": {
-                "value": 1.602176634e-19,
-                "unit": "C",
-                "symbol": "e"
-            },
-            "electron_mass": {
-                "value": 9.1093837015e-31,
-                "unit": "kg",
-                "symbol": "mₑ"
-            },
-            "proton_mass": {
-                "value": 1.67262192369e-27,
-                "unit": "kg",
-                "symbol": "mₚ"
-            },
-            "boltzmann_constant": {
-                "value": 1.380649e-23,
-                "unit": "J/K",
-                "symbol": "k"
-            },
-            "avogadro_number": {
-                "value": 6.02214076e23,
-                "unit": "mol⁻¹",
-                "symbol": "Nₐ"
-            },
+            "speed_of_light": {"value": 299792458, "unit": "m/s", "symbol": "c"},
+            "planck_constant": {"value": 6.62607015e-34, "unit": "J·s", "symbol": "h"},
+            "gravitational_constant": {"value": 6.67430e-11, "unit": "m³/(kg·s²)", "symbol": "G"},
+            "elementary_charge": {"value": 1.602176634e-19, "unit": "C", "symbol": "e"},
+            "electron_mass": {"value": 9.1093837015e-31, "unit": "kg", "symbol": "mₑ"},
+            "proton_mass": {"value": 1.67262192369e-27, "unit": "kg", "symbol": "mₚ"},
+            "boltzmann_constant": {"value": 1.380649e-23, "unit": "J/K", "symbol": "k"},
+            "avogadro_number": {"value": 6.02214076e23, "unit": "mol⁻¹", "symbol": "Nₐ"},
         }
 
     def demonstrate_wave_particle_duality(self) -> dict[str, Any]:
@@ -364,28 +303,19 @@ class PhysicsDomain(KnowledgeDomain):
         """
         return {
             "concept": "Wave-Particle Duality",
-            "wave_properties": {
-                "interference": True,
-                "diffraction": True,
-                "wavelength": "λ = h/p"
-            },
+            "wave_properties": {"interference": True, "diffraction": True, "wavelength": "λ = h/p"},
             "particle_properties": {
                 "localization": True,
                 "discrete_energy": True,
-                "momentum": "p = h/λ"
+                "momentum": "p = h/λ",
             },
-            "balance": {
-                "wave_aspect": 50.0,
-                "particle_aspect": 50.0,
-                "total": 100.0
-            },
-            "meta_meaning": "Quantum systems exhibit balanced wave-particle nature"
+            "balance": {"wave_aspect": 50.0, "particle_aspect": 50.0, "total": 100.0},
+            "meta_meaning": "Quantum systems exhibit balanced wave-particle nature",
         }
 
 
 def create_physics_domain(
-    meta_equilibrium: MetaEquilibrium | None = None,
-    initialize_all: bool = True
+    meta_equilibrium: MetaEquilibrium | None = None, initialize_all: bool = True
 ) -> PhysicsDomain:
     """
     Factory function to create a fully initialized physics domain.

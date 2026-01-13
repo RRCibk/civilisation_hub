@@ -5,45 +5,48 @@ Verifies claims, data, and states maintain META 50/50 equilibrium.
 All verification produces balanced proof/disproof at 50/50.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, TypeVar
 from uuid import UUID, uuid4
 
 from core.equilibrium import MetaEquilibrium
-from core.proportions import calculate_50_50, calculate_52_48, ProportionValidator
-
+from core.proportions import ProportionValidator
 
 T = TypeVar("T")
 
 
 class VerificationStatus(Enum):
     """Status of a verification."""
-    PENDING = "pending"          # Not yet verified
+
+    PENDING = "pending"  # Not yet verified
     IN_PROGRESS = "in_progress"  # Verification underway
-    VERIFIED = "verified"        # Passed verification
-    FAILED = "failed"            # Failed verification
+    VERIFIED = "verified"  # Passed verification
+    FAILED = "failed"  # Failed verification
     INCONCLUSIVE = "inconclusive"  # Cannot determine
 
 
 class VerificationType(Enum):
     """Types of verification."""
-    BALANCE = "balance"          # META 50/50 balance check
-    PROPORTION = "proportion"    # Ratio verification
+
+    BALANCE = "balance"  # META 50/50 balance check
+    PROPORTION = "proportion"  # Ratio verification
     CONSISTENCY = "consistency"  # Internal consistency
     COMPLETENESS = "completeness"  # Data completeness
-    INTEGRITY = "integrity"      # Data integrity
-    COMPLIANCE = "compliance"    # Rule compliance
+    INTEGRITY = "integrity"  # Data integrity
+    COMPLIANCE = "compliance"  # Rule compliance
 
 
 class ConfidenceLevel(Enum):
     """Confidence levels for verification results."""
-    NONE = "none"                # 0% confidence
-    LOW = "low"                  # 25% confidence
-    MEDIUM = "medium"            # 50% confidence
-    HIGH = "high"                # 75% confidence
-    ABSOLUTE = "absolute"        # 100% confidence
+
+    NONE = "none"  # 0% confidence
+    LOW = "low"  # 25% confidence
+    MEDIUM = "medium"  # 50% confidence
+    HIGH = "high"  # 75% confidence
+    ABSOLUTE = "absolute"  # 100% confidence
 
 
 @dataclass
@@ -51,6 +54,7 @@ class VerificationClaim:
     """
     A claim to be verified.
     """
+
     id: UUID = field(default_factory=uuid4)
     subject_id: UUID | None = None
     claim_type: VerificationType = VerificationType.BALANCE
@@ -99,6 +103,7 @@ class VerificationResult:
     Result of a verification process.
     Results should ideally be balanced (verification/falsification at 50/50).
     """
+
     id: UUID = field(default_factory=uuid4)
     claim_id: UUID = field(default_factory=uuid4)
     status: VerificationStatus = VerificationStatus.PENDING
@@ -139,11 +144,11 @@ class VerificationResult:
             "scores": {
                 "verified": self.score_verified,
                 "falsified": self.score_falsified,
-                "balance": f"{self.balance[0]:.2f}/{self.balance[1]:.2f}"
+                "balance": f"{self.balance[0]:.2f}/{self.balance[1]:.2f}",
             },
             "balanced": self.is_balanced,
             "timestamp": self.timestamp.isoformat(),
-            "errors": self.errors
+            "errors": self.errors,
         }
 
 
@@ -158,7 +163,7 @@ class VerificationRule:
         name: str,
         verification_type: VerificationType,
         validator: Callable[[Any], tuple[bool, float, float]],
-        description: str = ""
+        description: str = "",
     ):
         self._name = name
         self._type = verification_type
@@ -206,6 +211,7 @@ class Verifier:
 
     def _load_default_rules(self) -> None:
         """Load default verification rules."""
+
         # Balance rule
         def check_balance(data: dict) -> tuple[bool, float, float]:
             if "positive" not in data or "negative" not in data:
@@ -217,12 +223,14 @@ class Verifier:
             deviation = abs(balance[0] - 50)
             return False, 100 - deviation * 2, deviation * 2
 
-        self.register_rule(VerificationRule(
-            "meta_balance",
-            VerificationType.BALANCE,
-            check_balance,
-            "Verifies META 50/50 balance"
-        ))
+        self.register_rule(
+            VerificationRule(
+                "meta_balance",
+                VerificationType.BALANCE,
+                check_balance,
+                "Verifies META 50/50 balance",
+            )
+        )
 
         # Proportion rule
         def check_proportion(data: dict) -> tuple[bool, float, float]:
@@ -236,12 +244,14 @@ class Verifier:
             deviation = abs(actual - expected) / expected * 100
             return False, max(0, 100 - deviation), min(100, deviation)
 
-        self.register_rule(VerificationRule(
-            "proportion_check",
-            VerificationType.PROPORTION,
-            check_proportion,
-            "Verifies ratio proportions"
-        ))
+        self.register_rule(
+            VerificationRule(
+                "proportion_check",
+                VerificationType.PROPORTION,
+                check_proportion,
+                "Verifies ratio proportions",
+            )
+        )
 
         # Completeness rule
         def check_completeness(data: dict) -> tuple[bool, float, float]:
@@ -253,12 +263,14 @@ class Verifier:
             completeness = len(present & required) / len(required) * 100 if required else 100
             return len(missing) == 0, completeness, 100 - completeness
 
-        self.register_rule(VerificationRule(
-            "completeness_check",
-            VerificationType.COMPLETENESS,
-            check_completeness,
-            "Verifies data completeness"
-        ))
+        self.register_rule(
+            VerificationRule(
+                "completeness_check",
+                VerificationType.COMPLETENESS,
+                check_completeness,
+                "Verifies data completeness",
+            )
+        )
 
     @property
     def rule_count(self) -> int:
@@ -289,7 +301,7 @@ class Verifier:
         claim_type: VerificationType = VerificationType.BALANCE,
         subject_id: UUID | None = None,
         initial_evidence_for: float = 0.0,
-        initial_evidence_against: float = 0.0
+        initial_evidence_against: float = 0.0,
     ) -> VerificationClaim:
         """Create a new verification claim."""
         claim = VerificationClaim(
@@ -297,7 +309,7 @@ class Verifier:
             claim_type=claim_type,
             statement=statement,
             evidence_for=initial_evidence_for,
-            evidence_against=initial_evidence_against
+            evidence_against=initial_evidence_against,
         )
         self._claims[claim.id] = claim
         return claim
@@ -307,10 +319,7 @@ class Verifier:
         return self._claims.get(claim_id)
 
     def verify_claim(
-        self,
-        claim_id: UUID,
-        data: Any,
-        rule_name: str | None = None
+        self, claim_id: UUID, data: Any, rule_name: str | None = None
     ) -> VerificationResult:
         """
         Verify a claim using specified or matching rule.
@@ -326,9 +335,7 @@ class Verifier:
         claim = self._claims.get(claim_id)
         if claim is None:
             result = VerificationResult(
-                claim_id=claim_id,
-                status=VerificationStatus.FAILED,
-                errors=["Claim not found"]
+                claim_id=claim_id, status=VerificationStatus.FAILED, errors=["Claim not found"]
             )
             self._history.append(result)
             return result
@@ -349,7 +356,7 @@ class Verifier:
                 claim_id=claim_id,
                 status=VerificationStatus.FAILED,
                 verification_type=claim.claim_type,
-                errors=["No matching verification rule found"]
+                errors=["No matching verification rule found"],
             )
             self._history.append(result)
             return result
@@ -377,7 +384,7 @@ class Verifier:
                 confidence=confidence,
                 score_verified=score_for,
                 score_falsified=score_against,
-                details={"rule": rule.name, "data": str(data)[:100]}
+                details={"rule": rule.name, "data": str(data)[:100]},
             )
 
         except Exception as e:
@@ -385,7 +392,7 @@ class Verifier:
                 claim_id=claim_id,
                 status=VerificationStatus.FAILED,
                 verification_type=claim.claim_type,
-                errors=[str(e)]
+                errors=[str(e)],
             )
 
         self._results[result.id] = result
@@ -393,10 +400,7 @@ class Verifier:
         return result
 
     def verify_balance(
-        self,
-        positive: float,
-        negative: float,
-        create_claim: bool = True
+        self, positive: float, negative: float, create_claim: bool = True
     ) -> VerificationResult:
         """
         Verify META 50/50 balance directly.
@@ -412,22 +416,16 @@ class Verifier:
         claim_id = uuid4()
         if create_claim:
             claim = self.create_claim(
-                f"Balance check: {positive}/{negative}",
-                VerificationType.BALANCE
+                f"Balance check: {positive}/{negative}", VerificationType.BALANCE
             )
             claim_id = claim.id
 
         return self.verify_claim(
-            claim_id,
-            {"positive": positive, "negative": negative},
-            "meta_balance"
+            claim_id, {"positive": positive, "negative": negative}, "meta_balance"
         )
 
     def verify_proportion(
-        self,
-        actual_ratio: float,
-        expected_ratio: float,
-        tolerance: float = 0.01
+        self, actual_ratio: float, expected_ratio: float, tolerance: float = 0.01
     ) -> VerificationResult:
         """
         Verify a proportion/ratio.
@@ -441,20 +439,17 @@ class Verifier:
             VerificationResult
         """
         claim = self.create_claim(
-            f"Proportion check: {actual_ratio} vs {expected_ratio}",
-            VerificationType.PROPORTION
+            f"Proportion check: {actual_ratio} vs {expected_ratio}", VerificationType.PROPORTION
         )
 
         return self.verify_claim(
             claim.id,
             {"ratio": actual_ratio, "expected": expected_ratio, "tolerance": tolerance},
-            "proportion_check"
+            "proportion_check",
         )
 
     def batch_verify(
-        self,
-        items: list[tuple[UUID, Any]],
-        rule_name: str
+        self, items: list[tuple[UUID, Any]], rule_name: str
     ) -> list[VerificationResult]:
         """
         Verify multiple items with the same rule.
@@ -472,10 +467,7 @@ class Verifier:
             results.append(result)
         return results
 
-    def get_results_by_status(
-        self,
-        status: VerificationStatus
-    ) -> list[VerificationResult]:
+    def get_results_by_status(self, status: VerificationStatus) -> list[VerificationResult]:
         """Get results by status."""
         return [r for r in self._results.values() if r.status == status]
 
@@ -483,12 +475,7 @@ class Verifier:
         """Get verification statistics."""
         total = len(self._results)
         if total == 0:
-            return {
-                "total": 0,
-                "verified": 0,
-                "failed": 0,
-                "rate": 0.0
-            }
+            return {"total": 0, "verified": 0, "failed": 0, "rate": 0.0}
 
         verified = len(self.get_results_by_status(VerificationStatus.VERIFIED))
         failed = len(self.get_results_by_status(VerificationStatus.FAILED))
@@ -498,7 +485,7 @@ class Verifier:
             "verified": verified,
             "failed": failed,
             "inconclusive": total - verified - failed,
-            "rate": verified / total * 100 if total > 0 else 0
+            "rate": verified / total * 100 if total > 0 else 0,
         }
 
     def validate_all(self) -> dict[str, Any]:
@@ -516,7 +503,7 @@ class Verifier:
             "rules": self.rule_count,
             "statistics": stats,
             "aggregate_balance": f"{balance[0]:.2f}/{balance[1]:.2f}",
-            "system_balanced": self._meta.verify_balance(total_verified, total_falsified)
+            "system_balanced": self._meta.verify_balance(total_verified, total_falsified),
         }
 
     def prove_meta_meaning(self) -> dict[str, Any]:
@@ -529,7 +516,7 @@ class Verifier:
                 "Verification system maintains META 50/50 equilibrium"
                 if validation.get("system_balanced", False)
                 else "Verification system aggregate is not balanced (expected in practice)"
-            )
+            ),
         }
 
 
@@ -557,12 +544,7 @@ class VerificationChain:
     def results(self) -> list[VerificationResult]:
         return self._results.copy()
 
-    def add_step(
-        self,
-        name: str,
-        transformer: Callable[[Any], Any],
-        rule_name: str
-    ) -> None:
+    def add_step(self, name: str, transformer: Callable[[Any], Any], rule_name: str) -> None:
         """
         Add a verification step.
 
@@ -594,7 +576,7 @@ class VerificationChain:
             except Exception as e:
                 result = VerificationResult(
                     status=VerificationStatus.FAILED,
-                    errors=[f"Transform error in {step_name}: {str(e)}"]
+                    errors=[f"Transform error in {step_name}: {str(e)}"],
                 )
                 self._results.append(result)
                 all_passed = False
@@ -602,8 +584,7 @@ class VerificationChain:
 
             # Create claim and verify
             claim = self._verifier.create_claim(
-                f"Chain step: {step_name}",
-                VerificationType.COMPLIANCE
+                f"Chain step: {step_name}", VerificationType.COMPLIANCE
             )
             result = self._verifier.verify_claim(claim.id, step_data, rule_name)
             self._results.append(result)
@@ -627,5 +608,5 @@ class VerificationChain:
             "executed": len(self._results),
             "passed": passed,
             "failed": failed,
-            "complete": len(self._results) == self.step_count and failed == 0
+            "complete": len(self._results) == self.step_count and failed == 0,
         }

@@ -4,25 +4,25 @@ Tests for evolution module
 Tests for evolution tracking and transitions with META 50/50 validation.
 """
 
-import pytest
 from datetime import datetime
 from uuid import uuid4
 
+import pytest
+
 from evolution.tracker import (
-    EvolutionPhase,
-    EvolutionDirection,
     EvolutionDelta,
+    EvolutionDirection,
+    EvolutionMetrics,
+    EvolutionPhase,
     EvolutionSnapshot,
     EvolutionState,
     EvolutionTracker,
-    EvolutionMetrics,
 )
 from evolution.transitions import (
-    TransitionType,
-    TransitionRule,
-    TransitionResult,
-    TransitionMatrix,
     TransitionEngine,
+    TransitionMatrix,
+    TransitionRule,
+    TransitionType,
 )
 
 
@@ -137,7 +137,7 @@ class TestEvolutionSnapshot:
             timestamp=datetime.now(),
             phase=EvolutionPhase.GROWTH,
             positive_energy=100,
-            negative_energy=100
+            negative_energy=100,
         )
         assert snapshot.entity_id == entity_id
         assert snapshot.phase == EvolutionPhase.GROWTH
@@ -150,7 +150,7 @@ class TestEvolutionSnapshot:
             timestamp=datetime.now(),
             phase=EvolutionPhase.GENESIS,
             positive_energy=50,
-            negative_energy=50
+            negative_energy=50,
         )
         assert snapshot.total_energy == 100
 
@@ -161,7 +161,7 @@ class TestEvolutionSnapshot:
             timestamp=datetime.now(),
             phase=EvolutionPhase.GENESIS,
             positive_energy=100,
-            negative_energy=100
+            negative_energy=100,
         )
         assert snapshot.balance == (50.0, 50.0)
 
@@ -485,7 +485,7 @@ class TestTransitionRule:
             from_phase=EvolutionPhase.GENESIS,
             to_phase=EvolutionPhase.GROWTH,
             transition_type=TransitionType.PROGRESSION,
-            energy_cost=10
+            energy_cost=10,
         )
 
         assert rule.name == "genesis_to_growth"
@@ -499,7 +499,7 @@ class TestTransitionRule:
             from_phase=EvolutionPhase.GENESIS,
             to_phase=EvolutionPhase.GROWTH,
             transition_type=TransitionType.PROGRESSION,
-            energy_cost=100
+            energy_cost=100,
         )
 
         cost_pos, cost_neg = rule.cost_delta
@@ -513,7 +513,7 @@ class TestTransitionRule:
             from_phase=EvolutionPhase.GENESIS,
             to_phase=EvolutionPhase.GROWTH,
             transition_type=TransitionType.PROGRESSION,
-            energy_cost=10
+            energy_cost=10,
         )
 
         state = EvolutionState(uuid4(), initial_energy=100)
@@ -526,7 +526,7 @@ class TestTransitionRule:
             from_phase=EvolutionPhase.GROWTH,
             to_phase=EvolutionPhase.MATURATION,
             transition_type=TransitionType.PROGRESSION,
-            energy_cost=10
+            energy_cost=10,
         )
 
         state = EvolutionState(uuid4())  # GENESIS phase
@@ -539,7 +539,7 @@ class TestTransitionRule:
             from_phase=EvolutionPhase.GENESIS,
             to_phase=EvolutionPhase.GROWTH,
             transition_type=TransitionType.PROGRESSION,
-            energy_cost=200
+            energy_cost=200,
         )
 
         state = EvolutionState(uuid4(), initial_energy=100)
@@ -568,13 +568,11 @@ class TestTransitionMatrix:
         """Should check transition validity."""
         matrix = TransitionMatrix()
 
-        assert matrix.is_valid_transition(
-            EvolutionPhase.GENESIS, EvolutionPhase.GROWTH
-        ) is True
+        assert matrix.is_valid_transition(EvolutionPhase.GENESIS, EvolutionPhase.GROWTH) is True
 
-        assert matrix.is_valid_transition(
-            EvolutionPhase.GENESIS, EvolutionPhase.EQUILIBRIUM
-        ) is False
+        assert (
+            matrix.is_valid_transition(EvolutionPhase.GENESIS, EvolutionPhase.EQUILIBRIUM) is False
+        )
 
     def test_add_rule(self):
         """Should add custom rule."""
@@ -584,14 +582,14 @@ class TestTransitionMatrix:
             from_phase=EvolutionPhase.GENESIS,
             to_phase=EvolutionPhase.EQUILIBRIUM,
             transition_type=TransitionType.QUANTUM,
-            energy_cost=100
+            energy_cost=100,
         )
 
         matrix.add_rule(rule)
 
-        assert matrix.is_valid_transition(
-            EvolutionPhase.GENESIS, EvolutionPhase.EQUILIBRIUM
-        ) is True
+        assert (
+            matrix.is_valid_transition(EvolutionPhase.GENESIS, EvolutionPhase.EQUILIBRIUM) is True
+        )
 
     def test_remove_rule(self):
         """Should remove rule."""
@@ -600,9 +598,7 @@ class TestTransitionMatrix:
         removed = matrix.remove_rule(EvolutionPhase.GENESIS, EvolutionPhase.GROWTH)
 
         assert removed is not None
-        assert matrix.is_valid_transition(
-            EvolutionPhase.GENESIS, EvolutionPhase.GROWTH
-        ) is False
+        assert matrix.is_valid_transition(EvolutionPhase.GENESIS, EvolutionPhase.GROWTH) is False
 
     def test_to_adjacency_dict(self):
         """Should return adjacency dictionary."""

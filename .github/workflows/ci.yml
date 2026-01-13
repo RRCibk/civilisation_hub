@@ -69,9 +69,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Check Python syntax
-        run: |
-          python -m py_compile main.py
-          python -m py_compile core/*.py
-          python -m py_compile database/*.py
-          python -m py_compile knowledge/domains/*.py
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Run ruff linter
+        run: ruff check .
+
+      - name: Run ruff formatter check
+        run: ruff format --check .

@@ -8,35 +8,35 @@ Every contribution requires balanced reciprocation.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 from uuid import UUID, uuid4
 
 from core.equilibrium import MetaEquilibrium
-from core.proportions import calculate_50_50, calculate_52_48
 from participation.tracker import (
     ParticipationTracker,
     ParticipationType,
-    ParticipationRecord,
 )
 
 
 class ContributionCategory(Enum):
     """Categories of contributions."""
-    KNOWLEDGE = "knowledge"          # Information, expertise
-    RESOURCE = "resource"            # Material resources
-    TIME = "time"                    # Time investment
-    EFFORT = "effort"                # Work/labor
-    CREATIVE = "creative"            # Creative works
-    SOCIAL = "social"                # Social capital, connections
-    FINANCIAL = "financial"          # Monetary contributions
+
+    KNOWLEDGE = "knowledge"  # Information, expertise
+    RESOURCE = "resource"  # Material resources
+    TIME = "time"  # Time investment
+    EFFORT = "effort"  # Work/labor
+    CREATIVE = "creative"  # Creative works
+    SOCIAL = "social"  # Social capital, connections
+    FINANCIAL = "financial"  # Monetary contributions
 
 
 class ContributionStatus(Enum):
     """Status of a contribution."""
-    PENDING = "pending"              # Awaiting reciprocation
-    PARTIAL = "partial"              # Partially reciprocated
-    BALANCED = "balanced"            # Fully balanced (META 50/50)
-    OVERFLOW = "overflow"            # Over-reciprocated
+
+    PENDING = "pending"  # Awaiting reciprocation
+    PARTIAL = "partial"  # Partially reciprocated
+    BALANCED = "balanced"  # Fully balanced (META 50/50)
+    OVERFLOW = "overflow"  # Over-reciprocated
 
 
 @dataclass
@@ -44,6 +44,7 @@ class Contribution:
     """
     A contribution that requires balanced reciprocation.
     """
+
     id: UUID = field(default_factory=uuid4)
     contributor_id: UUID = field(default_factory=uuid4)
     category: ContributionCategory = ContributionCategory.EFFORT
@@ -120,6 +121,7 @@ class ContributionPool:
     A pool of contributions for a specific category or purpose.
     The pool maintains META 50/50 between total contributions and reciprocations.
     """
+
     id: UUID = field(default_factory=uuid4)
     name: str = ""
     category: ContributionCategory = ContributionCategory.EFFORT
@@ -231,19 +233,19 @@ class ContributionPool:
             "contributions": {
                 "total": self.contribution_count,
                 "pending": self.pending_count,
-                "balanced": self.balanced_count
+                "balanced": self.balanced_count,
             },
             "values": {
                 "contributed": self.total_contributed,
                 "reciprocated": self.total_reciprocated,
-                "balance": f"{balance[0]:.2f}/{balance[1]:.2f}"
+                "balance": f"{balance[0]:.2f}/{balance[1]:.2f}",
             },
             "meta_valid": self.is_balanced,
             "proof": (
                 "Contribution pool maintains META 50/50 equilibrium"
                 if self.is_balanced
                 else "Contribution pool is not yet balanced"
-            )
+            ),
         }
 
 
@@ -256,7 +258,7 @@ class ContributionManager:
     def __init__(
         self,
         participation_tracker: ParticipationTracker | None = None,
-        meta_equilibrium: MetaEquilibrium | None = None
+        meta_equilibrium: MetaEquilibrium | None = None,
     ):
         self._meta = meta_equilibrium or MetaEquilibrium()
         self._tracker = participation_tracker
@@ -281,7 +283,7 @@ class ContributionManager:
         category: ContributionCategory = ContributionCategory.EFFORT,
         description: str = "",
         tags: list[str] | None = None,
-        auto_balance: bool = False
+        auto_balance: bool = False,
     ) -> Contribution:
         """
         Create a new contribution.
@@ -303,7 +305,7 @@ class ContributionManager:
             value=value,
             reciprocated=value if auto_balance else 0,
             description=description,
-            tags=tags or []
+            tags=tags or [],
         )
 
         self._contributions[contribution.id] = contribution
@@ -319,7 +321,7 @@ class ContributionManager:
                     contributor_id,
                     value * 2,  # Total exchange
                     ParticipationType.CONTRIBUTION,
-                    description
+                    description,
                 )
             except ValueError:
                 pass  # Participant not registered
@@ -327,10 +329,7 @@ class ContributionManager:
         return contribution
 
     def reciprocate(
-        self,
-        contribution_id: UUID,
-        amount: float,
-        reciprocator_id: UUID | None = None
+        self, contribution_id: UUID, amount: float, reciprocator_id: UUID | None = None
     ) -> float:
         """
         Reciprocate a contribution.
@@ -356,7 +355,7 @@ class ContributionManager:
                     reciprocator_id,
                     applied * 2,
                     ParticipationType.CONTRIBUTION,
-                    f"Reciprocation for {contribution_id}"
+                    f"Reciprocation for {contribution_id}",
                 )
             except ValueError:
                 pass
@@ -370,38 +369,28 @@ class ContributionManager:
     def get_contributions_by_contributor(self, contributor_id: UUID) -> list[Contribution]:
         """Get all contributions by a contributor."""
         contribution_ids = self._contributor_contributions.get(contributor_id, [])
-        return [
-            self._contributions[cid]
-            for cid in contribution_ids
-            if cid in self._contributions
-        ]
+        return [self._contributions[cid] for cid in contribution_ids if cid in self._contributions]
 
     def get_pending_contributions(self) -> list[Contribution]:
         """Get all pending contributions."""
         return [
-            c for c in self._contributions.values()
+            c
+            for c in self._contributions.values()
             if c.status in [ContributionStatus.PENDING, ContributionStatus.PARTIAL]
         ]
 
     def get_balanced_contributions(self) -> list[Contribution]:
         """Get all balanced contributions."""
-        return [
-            c for c in self._contributions.values()
-            if c.status == ContributionStatus.BALANCED
-        ]
+        return [c for c in self._contributions.values() if c.status == ContributionStatus.BALANCED]
 
     def create_pool(
         self,
         name: str,
         category: ContributionCategory = ContributionCategory.EFFORT,
-        description: str = ""
+        description: str = "",
     ) -> ContributionPool:
         """Create a contribution pool."""
-        pool = ContributionPool(
-            name=name,
-            category=category,
-            description=description
-        )
+        pool = ContributionPool(name=name, category=category, description=description)
         self._pools[pool.id] = pool
         return pool
 
@@ -427,7 +416,7 @@ class ContributionManager:
                 "total_reciprocated": 0,
                 "balance": (50.0, 50.0),
                 "is_balanced": True,
-                "contribution_count": 0
+                "contribution_count": 0,
             }
 
         total_contributed = sum(c.value for c in contributions)
@@ -441,7 +430,9 @@ class ContributionManager:
             "balance": f"{balance[0]:.2f}/{balance[1]:.2f}",
             "is_balanced": self._meta.verify_balance(total_contributed, total_reciprocated),
             "contribution_count": len(contributions),
-            "pending_count": sum(1 for c in contributions if c.status != ContributionStatus.BALANCED)
+            "pending_count": sum(
+                1 for c in contributions if c.status != ContributionStatus.BALANCED
+            ),
         }
 
     def validate_all(self) -> dict[str, Any]:
@@ -462,19 +453,16 @@ class ContributionManager:
             "totals": {
                 "value": total_value,
                 "reciprocated": total_reciprocated,
-                "balance": f"{balance[0]:.2f}/{balance[1]:.2f}"
+                "balance": f"{balance[0]:.2f}/{balance[1]:.2f}",
             },
-            "system_balanced": self._meta.verify_balance(total_value, total_reciprocated)
+            "system_balanced": self._meta.verify_balance(total_value, total_reciprocated),
         }
 
     def prove_meta_meaning(self) -> dict[str, Any]:
         """Generate META proof for contribution manager."""
         validation = self.validate_all()
 
-        pool_proofs = [
-            pool.prove_meta_meaning()
-            for pool in self._pools.values()
-        ]
+        pool_proofs = [pool.prove_meta_meaning() for pool in self._pools.values()]
 
         return {
             **validation,
@@ -483,7 +471,7 @@ class ContributionManager:
                 "Contribution system maintains META 50/50 equilibrium"
                 if validation["system_balanced"]
                 else "Contribution system is not yet balanced"
-            )
+            ),
         }
 
 
@@ -497,9 +485,7 @@ class ContributionMatcher:
         self._meta = MetaEquilibrium()
 
     def find_matches(
-        self,
-        contribution: Contribution,
-        potential_reciprocators: list[UUID]
+        self, contribution: Contribution, potential_reciprocators: list[UUID]
     ) -> list[tuple[UUID, float]]:
         """
         Find potential matches for reciprocation.
@@ -575,16 +561,18 @@ class ContributionMatcher:
         contributor_plans = []
         for contributor_id, contributions in by_contributor.items():
             deficit = sum(c.remaining for c in contributions)
-            contributor_plans.append({
-                "contributor_id": str(contributor_id),
-                "pending_contributions": len(contributions),
-                "deficit": deficit
-            })
+            contributor_plans.append(
+                {
+                    "contributor_id": str(contributor_id),
+                    "pending_contributions": len(contributions),
+                    "deficit": deficit,
+                }
+            )
 
         return {
             "total_pending": len(pending),
             "total_deficit": total_deficit,
             "contributors_affected": len(by_contributor),
             "contributor_plans": contributor_plans,
-            "action_required": total_deficit > 0
+            "action_required": total_deficit > 0,
         }

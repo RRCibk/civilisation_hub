@@ -5,17 +5,18 @@ Central registry for managing knowledge domains.
 Ensures all registered domains maintain META 50/50 compliance.
 """
 
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 from uuid import UUID
 
 from core.equilibrium import MetaEquilibrium
-from core.proportions import ProportionValidator, Ratio
+from core.proportions import ProportionValidator
 from models.domain import (
     Domain,
-    DomainType,
-    DomainState,
     DomainHierarchy,
     DomainRelationship,
+    DomainState,
+    DomainType,
 )
 
 
@@ -66,9 +67,7 @@ class DomainRegistry:
             raise ValueError(f"Domain name already exists: {domain.name}")
 
         if require_balanced and not domain.validate_meta_compliance():
-            raise ValueError(
-                f"Domain '{domain.name}' does not maintain META 50/50 compliance"
-            )
+            raise ValueError(f"Domain '{domain.name}' does not maintain META 50/50 compliance")
 
         self._domains[domain.id] = domain
         self._domains_by_name[domain.name] = domain
@@ -97,9 +96,7 @@ class DomainRegistry:
         return self._domains_by_name.get(name)
 
     def list_domains(
-        self,
-        domain_type: DomainType | None = None,
-        state: DomainState | None = None
+        self, domain_type: DomainType | None = None, state: DomainState | None = None
     ) -> list[Domain]:
         """
         List domains, optionally filtered by type and/or state.
@@ -132,7 +129,7 @@ class DomainRegistry:
         description: str = "",
         positive_pole: tuple[str, float] | None = None,
         negative_pole: tuple[str, float] | None = None,
-        auto_register: bool = True
+        auto_register: bool = True,
     ) -> Domain:
         """
         Create a new domain with optional duality.
@@ -149,10 +146,7 @@ class DomainRegistry:
             The created domain
         """
         domain = Domain(
-            name=name,
-            domain_type=domain_type,
-            description=description,
-            meta_equilibrium=self._meta
+            name=name, domain_type=domain_type, description=description, meta_equilibrium=self._meta
         )
 
         if positive_pole and negative_pole:
@@ -160,7 +154,7 @@ class DomainRegistry:
                 positive_name=positive_pole[0],
                 positive_value=positive_pole[1],
                 negative_name=negative_pole[0],
-                negative_value=negative_pole[1]
+                negative_value=negative_pole[1],
             )
             domain.activate()
 
@@ -197,9 +191,7 @@ class DomainRegistry:
         Relationship must maintain META 50/50.
         """
         if not relationship.is_balanced:
-            raise ValueError(
-                f"Relationship '{relationship.name}' does not maintain META 50/50"
-            )
+            raise ValueError(f"Relationship '{relationship.name}' does not maintain META 50/50")
         self._relationships.append(relationship)
 
     def create_relationship(
@@ -208,7 +200,7 @@ class DomainRegistry:
         source: Domain,
         target: Domain,
         influence: float,
-        relationship_type: str = "bidirectional"
+        relationship_type: str = "bidirectional",
     ) -> DomainRelationship:
         """
         Create a balanced relationship between domains.
@@ -231,7 +223,7 @@ class DomainRegistry:
             target=target,
             influence_give=half,
             influence_receive=half,
-            relationship_type=relationship_type
+            relationship_type=relationship_type,
         )
         self.register_relationship(relationship)
         source.add_relationship(relationship)
@@ -240,8 +232,7 @@ class DomainRegistry:
     def get_relationships(self, domain: Domain) -> list[DomainRelationship]:
         """Get all relationships involving a domain."""
         return [
-            r for r in self._relationships
-            if r.source.id == domain.id or r.target.id == domain.id
+            r for r in self._relationships if r.source.id == domain.id or r.target.id == domain.id
         ]
 
     def validate_all(self) -> dict[str, Any]:
@@ -262,19 +253,17 @@ class DomainRegistry:
             else:
                 invalid_count += 1
 
-            domain_reports.append({
-                "name": domain.name,
-                "type": domain.domain_type.value,
-                "state": domain.state.value,
-                "meta_valid": is_valid
-            })
+            domain_reports.append(
+                {
+                    "name": domain.name,
+                    "type": domain.domain_type.value,
+                    "state": domain.state.value,
+                    "meta_valid": is_valid,
+                }
+            )
 
         relationship_reports = [
-            {
-                "name": r.name,
-                "balanced": r.is_balanced
-            }
-            for r in self._relationships
+            {"name": r.name, "balanced": r.is_balanced} for r in self._relationships
         ]
 
         return {
@@ -284,27 +273,18 @@ class DomainRegistry:
             "all_valid": invalid_count == 0,
             "domains": domain_reports,
             "relationships": relationship_reports,
-            "hierarchies": list(self._hierarchies.keys())
+            "hierarchies": list(self._hierarchies.keys()),
         }
 
     def prove_registry_meta_meaning(self) -> dict[str, Any]:
         """Generate META proof for entire registry."""
         validation = self.validate_all()
 
-        domain_proofs = [
-            domain.prove_meta_meaning()
-            for domain in self._domains.values()
-        ]
+        domain_proofs = [domain.prove_meta_meaning() for domain in self._domains.values()]
 
-        hierarchy_proofs = [
-            h.prove_meta_meaning()
-            for h in self._hierarchies.values()
-        ]
+        hierarchy_proofs = [h.prove_meta_meaning() for h in self._hierarchies.values()]
 
-        relationship_proofs = [
-            r.prove_meta_meaning()
-            for r in self._relationships
-        ]
+        relationship_proofs = [r.prove_meta_meaning() for r in self._relationships]
 
         return {
             **validation,
@@ -315,14 +295,11 @@ class DomainRegistry:
                 "Registry maintains META 50/50 equilibrium"
                 if validation["all_valid"]
                 else "Registry contains domains violating META 50/50"
-            )
+            ),
         }
 
     def __repr__(self) -> str:
-        return (
-            f"DomainRegistry(domains={self.domain_count}, "
-            f"hierarchies={self.hierarchy_count})"
-        )
+        return f"DomainRegistry(domains={self.domain_count}, hierarchies={self.hierarchy_count})"
 
 
 # Singleton registry instance

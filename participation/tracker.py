@@ -14,39 +14,41 @@ from uuid import UUID, uuid4
 from core.equilibrium import MetaEquilibrium
 from core.proportions import (
     ProportionValidator,
-    calculate_52_48,
     calculate_50_50,
+    calculate_52_48,
 )
-
 
 T = TypeVar("T")
 
 
 class ParticipationType(Enum):
     """Types of participation."""
-    CONTRIBUTION = "contribution"    # Adding value
-    CONSUMPTION = "consumption"      # Using value
+
+    CONTRIBUTION = "contribution"  # Adding value
+    CONSUMPTION = "consumption"  # Using value
     COLLABORATION = "collaboration"  # Joint effort
-    OBSERVATION = "observation"      # Passive engagement
-    FACILITATION = "facilitation"    # Enabling others
+    OBSERVATION = "observation"  # Passive engagement
+    FACILITATION = "facilitation"  # Enabling others
 
 
 class ParticipationLevel(Enum):
     """Levels of participation engagement."""
-    INACTIVE = "inactive"        # No participation
-    MINIMAL = "minimal"          # Low engagement
-    MODERATE = "moderate"        # Medium engagement
-    ACTIVE = "active"            # High engagement
-    INTENSIVE = "intensive"      # Very high engagement
+
+    INACTIVE = "inactive"  # No participation
+    MINIMAL = "minimal"  # Low engagement
+    MODERATE = "moderate"  # Medium engagement
+    ACTIVE = "active"  # High engagement
+    INTENSIVE = "intensive"  # Very high engagement
 
 
 class EngagementState(Enum):
     """States of engagement."""
-    DORMANT = "dormant"          # Not currently engaged
-    WARMING = "warming"          # Beginning to engage
-    ENGAGED = "engaged"          # Actively participating
-    PEAK = "peak"                # Maximum engagement
-    COOLING = "cooling"          # Reducing engagement
+
+    DORMANT = "dormant"  # Not currently engaged
+    WARMING = "warming"  # Beginning to engage
+    ENGAGED = "engaged"  # Actively participating
+    PEAK = "peak"  # Maximum engagement
+    COOLING = "cooling"  # Reducing engagement
 
 
 @dataclass
@@ -55,6 +57,7 @@ class ParticipationRecord:
     A record of participation activity.
     Must maintain META 50/50 between giving and receiving.
     """
+
     id: UUID = field(default_factory=uuid4)
     participant_id: UUID = field(default_factory=uuid4)
     participation_type: ParticipationType = ParticipationType.CONTRIBUTION
@@ -94,14 +97,14 @@ class ParticipationRecord:
         if not self.is_balanced:
             ratio = self.balance
             raise ValueError(
-                f"Participation violates META 50/50: "
-                f"given={ratio[0]:.2f}%/received={ratio[1]:.2f}%"
+                f"Participation violates META 50/50: given={ratio[0]:.2f}%/received={ratio[1]:.2f}%"
             )
 
 
 @dataclass
 class ParticipationSnapshot:
     """Snapshot of participation state at a point in time."""
+
     participant_id: UUID
     timestamp: datetime
     level: ParticipationLevel
@@ -145,11 +148,7 @@ class ParticipationState:
         ParticipationLevel.INTENSIVE: 500,
     }
 
-    def __init__(
-        self,
-        participant_id: UUID,
-        initial_exchange: float = 0.0
-    ):
+    def __init__(self, participant_id: UUID, initial_exchange: float = 0.0):
         self._participant_id = participant_id
         self._meta = MetaEquilibrium()
 
@@ -221,9 +220,7 @@ class ParticipationState:
         level = ParticipationLevel.INACTIVE
 
         for lvl, threshold in sorted(
-            self.LEVEL_THRESHOLDS.items(),
-            key=lambda x: x[1],
-            reverse=True
+            self.LEVEL_THRESHOLDS.items(), key=lambda x: x[1], reverse=True
         ):
             if exchange >= threshold:
                 level = lvl
@@ -277,10 +274,7 @@ class ParticipationState:
             total_given=self._total_given,
             total_received=self._total_received,
             record_count=self._record_count,
-            attributes={
-                "structure": self._structure,
-                "flexibility": self._flexibility
-            }
+            attributes={"structure": self._structure, "flexibility": self._flexibility},
         )
 
     def prove_meta_meaning(self) -> dict[str, Any]:
@@ -296,20 +290,20 @@ class ParticipationState:
                 "given": self._total_given,
                 "received": self._total_received,
                 "total": self.total_exchange,
-                "balance": f"{balance[0]:.2f}/{balance[1]:.2f}"
+                "balance": f"{balance[0]:.2f}/{balance[1]:.2f}",
             },
             "meta_valid": self.is_balanced,
             "operational": {
                 "structure": self._structure,
                 "flexibility": self._flexibility,
-                "ratio": f"{operational[0]:.2f}/{operational[1]:.2f}"
+                "ratio": f"{operational[0]:.2f}/{operational[1]:.2f}",
             },
             "record_count": self._record_count,
             "proof": (
                 "Participation state maintains META 50/50 equilibrium"
                 if self.is_balanced
                 else "Participation state violates META 50/50"
-            )
+            ),
         }
 
 
@@ -336,11 +330,7 @@ class ParticipationTracker(Generic[T]):
         """Total number of participation records."""
         return sum(len(records) for records in self._records.values())
 
-    def register(
-        self,
-        participant_id: UUID,
-        initial_exchange: float = 0.0
-    ) -> ParticipationState:
+    def register(self, participant_id: UUID, initial_exchange: float = 0.0) -> ParticipationState:
         """
         Register a participant for tracking.
 
@@ -387,7 +377,7 @@ class ParticipationTracker(Generic[T]):
         given: float,
         received: float,
         participation_type: ParticipationType = ParticipationType.CONTRIBUTION,
-        description: str = ""
+        description: str = "",
     ) -> ParticipationRecord:
         """
         Record a participation activity.
@@ -412,7 +402,7 @@ class ParticipationTracker(Generic[T]):
             participation_type=participation_type,
             given=given,
             received=received,
-            description=description
+            description=description,
         )
 
         # Apply to state (validates internally)
@@ -429,7 +419,7 @@ class ParticipationTracker(Generic[T]):
         participant_id: UUID,
         exchange_amount: float,
         participation_type: ParticipationType = ParticipationType.CONTRIBUTION,
-        description: str = ""
+        description: str = "",
     ) -> ParticipationRecord:
         """
         Record a balanced participation (automatically 50/50 split).
@@ -458,11 +448,7 @@ class ParticipationTracker(Generic[T]):
         state = self._states.get(participant_id)
         return state.engagement_state if state else EngagementState.DORMANT
 
-    def set_engagement_state(
-        self,
-        participant_id: UUID,
-        state: EngagementState
-    ) -> None:
+    def set_engagement_state(self, participant_id: UUID, state: EngagementState) -> None:
         """Set engagement state for a participant."""
         participant_state = self._states.get(participant_id)
         if participant_state is None:
@@ -482,12 +468,14 @@ class ParticipationTracker(Generic[T]):
             else:
                 invalid_count += 1
 
-            participant_reports.append({
-                "participant_id": str(participant_id),
-                "level": state.level.value,
-                "engagement": state.engagement_state.value,
-                "balanced": is_valid
-            })
+            participant_reports.append(
+                {
+                    "participant_id": str(participant_id),
+                    "level": state.level.value,
+                    "engagement": state.engagement_state.value,
+                    "balanced": is_valid,
+                }
+            )
 
         return {
             "tracked_participants": self.participant_count,
@@ -495,16 +483,13 @@ class ParticipationTracker(Generic[T]):
             "valid": valid_count,
             "invalid": invalid_count,
             "all_valid": invalid_count == 0,
-            "participants": participant_reports
+            "participants": participant_reports,
         }
 
     def prove_tracker_meta_meaning(self) -> dict[str, Any]:
         """Generate META proof for entire tracker."""
         validation = self.validate_all()
-        state_proofs = [
-            state.prove_meta_meaning()
-            for state in self._states.values()
-        ]
+        state_proofs = [state.prove_meta_meaning() for state in self._states.values()]
 
         return {
             **validation,
@@ -513,7 +498,7 @@ class ParticipationTracker(Generic[T]):
                 "Participation tracker maintains META 50/50 equilibrium"
                 if validation["all_valid"]
                 else "Participation tracker has participants violating META 50/50"
-            )
+            ),
         }
 
 
@@ -576,8 +561,7 @@ class ParticipationMetrics:
             return 0.0
 
         contributions = sum(
-            1 for r in records
-            if r.participation_type == ParticipationType.CONTRIBUTION
+            1 for r in records if r.participation_type == ParticipationType.CONTRIBUTION
         )
         return contributions / len(records)
 
@@ -613,11 +597,7 @@ class ParticipationMetrics:
 
         return self._meta.calculate_balance(total_given, total_received)
 
-    def get_top_participants(
-        self,
-        n: int = 10,
-        by: str = "exchange"
-    ) -> list[tuple[UUID, float]]:
+    def get_top_participants(self, n: int = 10, by: str = "exchange") -> list[tuple[UUID, float]]:
         """
         Get top N participants by specified metric.
 
@@ -670,12 +650,12 @@ class ParticipationMetrics:
                 "balance_stability": self.calculate_balance_stability(participant_id),
                 "contribution_ratio": self.calculate_contribution_ratio(participant_id),
                 "total_records": len(records),
-                "snapshots": len(history)
+                "snapshots": len(history),
             },
             "participation_types": type_dist,
             "history_summary": {
                 "first_activity": records[0].timestamp.isoformat() if records else None,
                 "last_activity": records[-1].timestamp.isoformat() if records else None,
-                "levels_achieved": list(set(s.level.value for s in history))
-            }
+                "levels_achieved": list({s.level.value for s in history}),
+            },
         }

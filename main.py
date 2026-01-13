@@ -16,28 +16,25 @@ import argparse
 import sys
 from typing import Any
 
-from core.equilibrium import MetaEquilibrium, Atom
+from core.equilibrium import MetaEquilibrium
 from core.proportions import (
-    Pi6Proportion,
     OperationalRatio,
-    ProportionValidator,
+    Pi6Proportion,
 )
-from knowledge.domains.base import KnowledgeDomain
-from knowledge.domains.mathematics import create_mathematics_domain
-from knowledge.domains.physics import create_physics_domain
-from knowledge.domains.code import create_code_domain
-from knowledge.domains.biology import create_biology_domain
-from knowledge.domains.philosophy import create_philosophy_domain
-from knowledge.domains.registry import DomainRegistry
-from evolution.tracker import EvolutionTracker
-from evolution.transitions import TransitionEngine
-from participation.tracker import ParticipationTracker
-from participation.contributions import ContributionManager
-from verification.verifier import Verifier
-from verification.validators import MetaEquilibriumValidator
-from output.display import ConsoleDisplay, BufferedDisplay, DisplayStyle
-from output.reporters import SystemReporter, DomainReporter
 from database.persistence import DomainPersistenceService
+from evolution.tracker import EvolutionTracker
+from knowledge.domains.base import KnowledgeDomain
+from knowledge.domains.biology import create_biology_domain
+from knowledge.domains.code import create_code_domain
+from knowledge.domains.mathematics import create_mathematics_domain
+from knowledge.domains.philosophy import create_philosophy_domain
+from knowledge.domains.physics import create_physics_domain
+from knowledge.domains.registry import DomainRegistry
+from output.display import ConsoleDisplay
+from output.reporters import DomainReporter, SystemReporter
+from participation.contributions import ContributionManager
+from participation.tracker import ParticipationTracker
+from verification.verifier import Verifier
 
 
 class CivilisationHub:
@@ -87,19 +84,11 @@ class CivilisationHub:
 
     def get_meta_balance(self) -> dict[str, Any]:
         """Get META balance state."""
-        return {
-            "positive": 50.0,
-            "negative": 50.0,
-            "balanced": True
-        }
+        return {"positive": 50.0, "negative": 50.0, "balanced": True}
 
     def get_operational_ratio(self) -> dict[str, Any]:
         """Get operational ratio state."""
-        return {
-            "structure": 52.0,
-            "flexibility": 48.0,
-            "ratio": 52 / 48
-        }
+        return {"structure": 52.0, "flexibility": 48.0, "ratio": 52 / 48}
 
     def is_meta_balanced(self) -> bool:
         """Check if META is balanced."""
@@ -165,23 +154,18 @@ class CivilisationHub:
         for name, domain in self._domains.items():
             stats = domain.get_domain_stats()
             total_concepts += stats["concepts"]
-            domain_stats.append({
-                "name": name,
-                "concepts": stats["concepts"],
-                "balanced": stats["balanced"]
-            })
+            domain_stats.append(
+                {"name": name, "concepts": stats["concepts"], "balanced": stats["balanced"]}
+            )
 
         return {
             "system": self.NAME,
             "version": self.VERSION,
             "meta_balanced": self.is_meta_balanced(),
             "operational_ratio": self._operational.ratio,
-            "domains": {
-                "count": len(self._domains),
-                "details": domain_stats
-            },
+            "domains": {"count": len(self._domains), "details": domain_stats},
             "total_concepts": total_concepts,
-            "system_valid": self.validate_system()
+            "system_valid": self.validate_system(),
         }
 
     def prove_meta_meaning(self) -> dict[str, Any]:
@@ -190,39 +174,47 @@ class CivilisationHub:
 
         # META balance proof
         meta_balance = self.get_meta_balance()
-        proofs.append({
-            "component": "META Equilibrium",
-            "claim": "System maintains 50/50 balance",
-            "evidence": f"Positive: {meta_balance['positive']}%, Negative: {meta_balance['negative']}%",
-            "valid": meta_balance["balanced"]
-        })
+        proofs.append(
+            {
+                "component": "META Equilibrium",
+                "claim": "System maintains 50/50 balance",
+                "evidence": f"Positive: {meta_balance['positive']}%, Negative: {meta_balance['negative']}%",
+                "valid": meta_balance["balanced"],
+            }
+        )
 
         # Operational ratio proof
         op_ratio = self.get_operational_ratio()
-        proofs.append({
-            "component": "Operational Ratio",
-            "claim": "52/48 ratio enables META balance",
-            "evidence": f"Structure: {op_ratio['structure']}%, Flexibility: {op_ratio['flexibility']}%",
-            "valid": abs(op_ratio["ratio"] - 1.0833) < 0.01
-        })
+        proofs.append(
+            {
+                "component": "Operational Ratio",
+                "claim": "52/48 ratio enables META balance",
+                "evidence": f"Structure: {op_ratio['structure']}%, Flexibility: {op_ratio['flexibility']}%",
+                "valid": abs(op_ratio["ratio"] - 1.0833) < 0.01,
+            }
+        )
 
         # PI/6 derivation proof
-        proofs.append({
-            "component": "PI/6 Proportion",
-            "claim": "Operational ratio derived from PI/6",
-            "evidence": f"PI/6 ≈ {self._pi6.value:.4f}, sin(PI/6) = 0.5 (META connection)",
-            "valid": self._pi6.verify_meta_connection()
-        })
+        proofs.append(
+            {
+                "component": "PI/6 Proportion",
+                "claim": "Operational ratio derived from PI/6",
+                "evidence": f"PI/6 ≈ {self._pi6.value:.4f}, sin(PI/6) = 0.5 (META connection)",
+                "valid": self._pi6.verify_meta_connection(),
+            }
+        )
 
         # Domain balance proofs
         for name, domain in self._domains.items():
             domain_proof = domain.prove_meta_meaning()
-            proofs.append({
-                "component": f"Domain: {name}",
-                "claim": f"{name} domain maintains META balance",
-                "evidence": f"Duality balanced: {domain_proof['meta_valid']}",
-                "valid": domain_proof["meta_valid"]
-            })
+            proofs.append(
+                {
+                    "component": f"Domain: {name}",
+                    "claim": f"{name} domain maintains META balance",
+                    "evidence": f"Duality balanced: {domain_proof['meta_valid']}",
+                    "valid": domain_proof["meta_valid"],
+                }
+            )
 
         all_valid = all(p["valid"] for p in proofs)
 
@@ -232,9 +224,9 @@ class CivilisationHub:
             "all_valid": all_valid,
             "conclusion": (
                 "Civilisation Hub maintains META 50/50 equilibrium across all components."
-                if all_valid else
-                "Some components require balance adjustment."
-            )
+                if all_valid
+                else "Some components require balance adjustment."
+            ),
         }
 
     def display_status(self) -> None:
@@ -245,13 +237,15 @@ class CivilisationHub:
         self._display.display_title("System Status", level=1)
 
         stats = self.get_system_stats()
-        self._display.display({
-            "Version": stats["version"],
-            "META Balanced": "Yes" if stats["meta_balanced"] else "No",
-            "Domains": stats["domains"]["count"],
-            "Total Concepts": stats["total_concepts"],
-            "System Valid": "Yes" if stats["system_valid"] else "No"
-        })
+        self._display.display(
+            {
+                "Version": stats["version"],
+                "META Balanced": "Yes" if stats["meta_balanced"] else "No",
+                "Domains": stats["domains"]["count"],
+                "Total Concepts": stats["total_concepts"],
+                "System Valid": "Yes" if stats["system_valid"] else "No",
+            }
+        )
 
         self._display.display_title("Domains", level=2)
         for domain_stat in stats["domains"]["details"]:
@@ -349,7 +343,7 @@ class CivilisationHub:
 
         # Domain details
         self._display.display_title("Domain Details", level=1)
-        for name, domain in self._domains.items():
+        for _name, domain in self._domains.items():
             reporter = DomainReporter(self._display)
             report = reporter.generate_report(domain)
             reporter.render_report(report)
@@ -370,70 +364,41 @@ Examples:
   python main.py --save             Save all domains to database
   python main.py --list-saved       List saved domains
   python main.py --db-stats         Show database statistics
-        """
+        """,
     )
 
-    parser.add_argument(
-        "--demo",
-        action="store_true",
-        help="Run full system demonstration"
-    )
+    parser.add_argument("--demo", action="store_true", help="Run full system demonstration")
 
-    parser.add_argument(
-        "--prove",
-        action="store_true",
-        help="Display META 50/50 proof"
-    )
+    parser.add_argument("--prove", action="store_true", help="Display META 50/50 proof")
 
-    parser.add_argument(
-        "--status",
-        action="store_true",
-        help="Display system status (default)"
-    )
+    parser.add_argument("--status", action="store_true", help="Display system status (default)")
 
     parser.add_argument(
         "--domain",
         type=str,
         choices=["mathematics", "physics", "code", "biology", "philosophy"],
-        help="Display specific domain details"
+        help="Display specific domain details",
     )
 
-    parser.add_argument(
-        "--verbose", "-v",
-        action="store_true",
-        help="Enable verbose output"
-    )
+    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose output")
 
     parser.add_argument(
-        "--version",
-        action="version",
-        version=f"Civilisation Hub {CivilisationHub.VERSION}"
+        "--version", action="version", version=f"Civilisation Hub {CivilisationHub.VERSION}"
     )
 
     # Database persistence options
+    parser.add_argument("--save", action="store_true", help="Save all domains to database")
+
     parser.add_argument(
-        "--save",
-        action="store_true",
-        help="Save all domains to database"
+        "--save-domain", type=str, metavar="NAME", help="Save a specific domain to database"
     )
 
     parser.add_argument(
-        "--save-domain",
-        type=str,
-        metavar="NAME",
-        help="Save a specific domain to database"
+        "--list-saved", action="store_true", help="List all domains saved in database"
     )
 
     parser.add_argument(
-        "--list-saved",
-        action="store_true",
-        help="List all domains saved in database"
-    )
-
-    parser.add_argument(
-        "--db-stats",
-        action="store_true",
-        help="Show database persistence statistics"
+        "--db-stats", action="store_true", help="Show database persistence statistics"
     )
 
     return parser

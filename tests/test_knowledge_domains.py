@@ -5,28 +5,28 @@ Comprehensive tests for all knowledge domain implementations.
 Tests META 50/50 balance in each domain.
 """
 
-import pytest
 import math
 from uuid import UUID
 
+import pytest
+
 from core.equilibrium import MetaEquilibrium
 from knowledge.domains.base import (
-    KnowledgeDomain,
     Concept,
-    ConceptType,
     ConceptRelation,
+    ConceptType,
     RelationType,
 )
-from knowledge.domains.mathematics import MathematicsDomain, create_mathematics_domain
-from knowledge.domains.physics import PhysicsDomain, create_physics_domain
-from knowledge.domains.code import CodeDomain, create_code_domain
 from knowledge.domains.biology import BiologyDomain, create_biology_domain
+from knowledge.domains.code import CodeDomain, create_code_domain
+from knowledge.domains.mathematics import MathematicsDomain, create_mathematics_domain
 from knowledge.domains.philosophy import PhilosophyDomain, create_philosophy_domain
-
+from knowledge.domains.physics import PhysicsDomain, create_physics_domain
 
 # =============================================================================
 # Base Concept Tests
 # =============================================================================
+
 
 class TestConcept:
     """Tests for the Concept class."""
@@ -34,9 +34,7 @@ class TestConcept:
     def test_concept_creation(self):
         """Test basic concept creation."""
         concept = Concept(
-            name="Test Concept",
-            concept_type=ConceptType.DEFINITION,
-            description="A test concept"
+            name="Test Concept", concept_type=ConceptType.DEFINITION, description="A test concept"
         )
         assert concept.name == "Test Concept"
         assert concept.concept_type == ConceptType.DEFINITION
@@ -51,11 +49,7 @@ class TestConcept:
 
     def test_concept_certainty_normalization(self):
         """Test certainty values are normalized to 100."""
-        concept = Concept(
-            name="High Certainty",
-            certainty=80.0,
-            uncertainty=20.0
-        )
+        concept = Concept(name="High Certainty", certainty=80.0, uncertainty=20.0)
         assert concept.certainty == 80.0
         assert concept.uncertainty == 20.0
         assert concept.certainty + concept.uncertainty == 100.0
@@ -92,10 +86,7 @@ class TestConceptRelation:
 
     def test_relation_creation(self):
         """Test basic relation creation."""
-        relation = ConceptRelation(
-            relation_type=RelationType.DERIVES_FROM,
-            strength=75.0
-        )
+        relation = ConceptRelation(relation_type=RelationType.DERIVES_FROM, strength=75.0)
         assert relation.relation_type == RelationType.DERIVES_FROM
         assert relation.strength == 75.0
         assert isinstance(relation.id, UUID)
@@ -109,6 +100,7 @@ class TestConceptRelation:
 # =============================================================================
 # Mathematics Domain Tests
 # =============================================================================
+
 
 class TestMathematicsDomain:
     """Tests for the Mathematics domain."""
@@ -178,22 +170,14 @@ class TestMathematicsDomain:
     def test_add_theorem(self):
         """Test adding a theorem."""
         domain = MathematicsDomain()
-        theorem = domain.add_theorem(
-            "Custom Theorem",
-            "A custom statement",
-            "Proof by example"
-        )
+        theorem = domain.add_theorem("Custom Theorem", "A custom statement", "Proof by example")
         assert theorem.concept_type == ConceptType.THEOREM
         assert theorem.metadata["proof_sketch"] == "Proof by example"
 
     def test_add_definition(self):
         """Test adding a definition."""
         domain = MathematicsDomain()
-        defn = domain.add_definition(
-            "Custom Term",
-            "A custom definition",
-            "CT"
-        )
+        defn = domain.add_definition("Custom Term", "A custom definition", "CT")
         assert defn.concept_type == ConceptType.DEFINITION
         assert defn.metadata["notation"] == "CT"
 
@@ -256,6 +240,7 @@ class TestMathematicsDomain:
 # =============================================================================
 # Physics Domain Tests
 # =============================================================================
+
 
 class TestPhysicsDomain:
     """Tests for the Physics domain."""
@@ -320,7 +305,7 @@ class TestPhysicsDomain:
             "Test Equation",
             "E = hf",
             "Energy of photon",
-            {"E": "Energy", "h": "Planck constant", "f": "Frequency"}
+            {"E": "Energy", "h": "Planck constant", "f": "Frequency"},
         )
         assert eq.metadata["equation"] == "E = hf"
 
@@ -358,6 +343,7 @@ class TestPhysicsDomain:
 # Code Domain Tests
 # =============================================================================
 
+
 class TestCodeDomain:
     """Tests for the Code/Programming domain."""
 
@@ -378,7 +364,9 @@ class TestCodeDomain:
         """Test programming principles are initialized."""
         domain = CodeDomain()
         # Programming principles use ConceptType.PRINCIPLE
-        principle_concepts = [c for c in domain._concepts.values() if c.concept_type == ConceptType.PRINCIPLE]
+        principle_concepts = [
+            c for c in domain._concepts.values() if c.concept_type == ConceptType.PRINCIPLE
+        ]
         principle_names = [c.name for c in principle_concepts]
         assert "DRY" in principle_names
         assert "KISS" in principle_names
@@ -458,6 +446,7 @@ class TestCodeDomain:
 # Biology Domain Tests
 # =============================================================================
 
+
 class TestBiologyDomain:
     """Tests for the Biology domain."""
 
@@ -478,7 +467,9 @@ class TestBiologyDomain:
         """Test biological principles are initialized."""
         domain = BiologyDomain()
         # Biological principles use ConceptType.PRINCIPLE
-        principle_concepts = [c for c in domain._concepts.values() if c.concept_type == ConceptType.PRINCIPLE]
+        principle_concepts = [
+            c for c in domain._concepts.values() if c.concept_type == ConceptType.PRINCIPLE
+        ]
         principle_names = [c.name for c in principle_concepts]
         assert "Cell Theory" in principle_names
         assert "Evolution by Natural Selection" in principle_names
@@ -562,6 +553,7 @@ class TestBiologyDomain:
 # =============================================================================
 # Philosophy Domain Tests
 # =============================================================================
+
 
 class TestPhilosophyDomain:
     """Tests for the Philosophy domain."""
@@ -664,6 +656,7 @@ class TestPhilosophyDomain:
 # Cross-Domain Integration Tests
 # =============================================================================
 
+
 class TestCrossDomainIntegration:
     """Tests for cross-domain integration."""
 
@@ -697,7 +690,9 @@ class TestCrossDomainIntegration:
         ]
         foundational_types = {ConceptType.AXIOM, ConceptType.LAW, ConceptType.PRINCIPLE}
         for domain in domains:
-            foundational = [c for c in domain._concepts.values() if c.concept_type in foundational_types]
+            foundational = [
+                c for c in domain._concepts.values() if c.concept_type in foundational_types
+            ]
             assert len(foundational) > 0, f"{domain.name} has no foundational concepts"
 
     def test_all_domains_prove_meta(self):
@@ -724,13 +719,15 @@ class TestCrossDomainIntegration:
             create_philosophy_domain(),
         ]
         for domain in domains:
-            assert domain.concept_count >= min_concepts, \
+            assert domain.concept_count >= min_concepts, (
                 f"{domain.name} has only {domain.concept_count} concepts"
+            )
 
 
 # =============================================================================
 # META Balance Proof Tests
 # =============================================================================
+
 
 class TestMetaBalanceProof:
     """Tests proving META 50/50 across all domains."""

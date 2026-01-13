@@ -6,40 +6,32 @@ Verifies META 50/50 balance is maintained in persistence.
 """
 
 import pytest
-from datetime import datetime
 
-from database.models import (
-    Base,
-    DomainModel,
-    ConceptModel,
-    ConceptRelationModel,
-    RelationModel,
-    DualityModel,
-)
 from database.engine import (
     DatabaseEngine,
     get_engine,
-    create_tables,
-    drop_tables,
     reset_engine,
+)
+from database.models import (
+    ConceptModel,
+    DomainModel,
+    DualityModel,
+    RelationModel,
+)
+from database.repository import (
+    ConceptRepository,
+    DomainRepository,
+    RelationRepository,
 )
 from database.session import (
     SessionManager,
-    get_session,
-    session_scope,
     reset_session_manager,
 )
-from database.repository import (
-    DomainRepository,
-    ConceptRepository,
-    RelationRepository,
-    ConceptRelationRepository,
-)
-
 
 # =============================================================================
 # Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def engine():
@@ -72,6 +64,7 @@ def session(session_manager):
 # DualityModel Tests
 # =============================================================================
 
+
 class TestDualityModel:
     """Tests for DualityModel."""
 
@@ -82,7 +75,7 @@ class TestDualityModel:
             positive_name="positive",
             positive_value=50.0,
             negative_name="negative",
-            negative_value=50.0
+            negative_value=50.0,
         )
         session.add(duality)
         session.commit()
@@ -98,7 +91,7 @@ class TestDualityModel:
             positive_name="pos",
             positive_value=50.0,
             negative_name="neg",
-            negative_value=50.0
+            negative_value=50.0,
         )
         assert duality.validate_balance() is True
         assert duality.is_balanced is True
@@ -110,7 +103,7 @@ class TestDualityModel:
             positive_name="pos",
             positive_value=60.0,
             negative_name="neg",
-            negative_value=40.0
+            negative_value=40.0,
         )
         assert duality.validate_balance() is False
         assert duality.is_balanced is False
@@ -122,7 +115,7 @@ class TestDualityModel:
             positive_name="pos",
             positive_value=50.0,
             negative_name="neg",
-            negative_value=50.0
+            negative_value=50.0,
         )
         d = duality.to_dict()
         assert d["name"] == "test"
@@ -134,15 +127,14 @@ class TestDualityModel:
 # DomainModel Tests
 # =============================================================================
 
+
 class TestDomainModel:
     """Tests for DomainModel."""
 
     def test_create_domain(self, session):
         """Test creating a domain."""
         domain = DomainModel(
-            name="TestDomain",
-            domain_type="fundamental",
-            description="A test domain"
+            name="TestDomain", domain_type="fundamental", description="A test domain"
         )
         session.add(domain)
         session.commit()
@@ -158,13 +150,9 @@ class TestDomainModel:
             positive_name="abstract",
             positive_value=50.0,
             negative_name="concrete",
-            negative_value=50.0
+            negative_value=50.0,
         )
-        domain = DomainModel(
-            name="Mathematics",
-            domain_type="fundamental",
-            duality=duality
-        )
+        domain = DomainModel(name="Mathematics", domain_type="fundamental", duality=duality)
         session.add(domain)
         session.commit()
 
@@ -179,7 +167,7 @@ class TestDomainModel:
             positive_name="pos",
             positive_value=50.0,
             negative_name="neg",
-            negative_value=50.0
+            negative_value=50.0,
         )
         domain = DomainModel(name="Balanced", duality=duality)
         session.add(domain)
@@ -215,13 +203,9 @@ class TestDomainModel:
             positive_name="pos",
             positive_value=50.0,
             negative_name="neg",
-            negative_value=50.0
+            negative_value=50.0,
         )
-        domain = DomainModel(
-            name="Test",
-            domain_type="fundamental",
-            duality=duality
-        )
+        domain = DomainModel(name="Test", domain_type="fundamental", duality=duality)
         session.add(domain)
         session.commit()
 
@@ -234,6 +218,7 @@ class TestDomainModel:
 # =============================================================================
 # ConceptModel Tests
 # =============================================================================
+
 
 class TestConceptModel:
     """Tests for ConceptModel."""
@@ -248,7 +233,7 @@ class TestConceptModel:
             name="TestConcept",
             concept_type="definition",
             description="A test concept",
-            domain_id=domain.id
+            domain_id=domain.id,
         )
         session.add(concept)
         session.commit()
@@ -265,10 +250,7 @@ class TestConceptModel:
         session.flush()
 
         concept = ConceptModel(
-            name="Balanced",
-            certainty=50.0,
-            uncertainty=50.0,
-            domain_id=domain.id
+            name="Balanced", certainty=50.0, uncertainty=50.0, domain_id=domain.id
         )
         assert concept.validate_balance() is True
         assert concept.is_balanced is True
@@ -280,10 +262,7 @@ class TestConceptModel:
         session.flush()
 
         concept = ConceptModel(
-            name="Imbalanced",
-            certainty=80.0,
-            uncertainty=20.0,
-            domain_id=domain.id
+            name="Imbalanced", certainty=80.0, uncertainty=20.0, domain_id=domain.id
         )
         assert concept.validate_balance() is False
         assert concept.is_balanced is False
@@ -294,11 +273,7 @@ class TestConceptModel:
         session.add(domain)
         session.flush()
 
-        concept = ConceptModel(
-            name="Test",
-            concept_type="theorem",
-            domain_id=domain.id
-        )
+        concept = ConceptModel(name="Test", concept_type="theorem", domain_id=domain.id)
         session.add(concept)
         session.commit()
 
@@ -311,6 +286,7 @@ class TestConceptModel:
 # =============================================================================
 # RelationModel Tests
 # =============================================================================
+
 
 class TestRelationModel:
     """Tests for RelationModel."""
@@ -327,7 +303,7 @@ class TestRelationModel:
             source_domain_id=domain1.id,
             target_domain_id=domain2.id,
             influence_give=50.0,
-            influence_receive=50.0
+            influence_receive=50.0,
         )
         session.add(relation)
         session.commit()
@@ -347,7 +323,7 @@ class TestRelationModel:
             source_domain_id=domain1.id,
             target_domain_id=domain2.id,
             influence_give=50.0,
-            influence_receive=50.0
+            influence_receive=50.0,
         )
         assert balanced.validate_balance() is True
 
@@ -356,7 +332,7 @@ class TestRelationModel:
             source_domain_id=domain1.id,
             target_domain_id=domain2.id,
             influence_give=70.0,
-            influence_receive=30.0
+            influence_receive=30.0,
         )
         assert imbalanced.validate_balance() is False
 
@@ -364,6 +340,7 @@ class TestRelationModel:
 # =============================================================================
 # DatabaseEngine Tests
 # =============================================================================
+
 
 class TestDatabaseEngine:
     """Tests for DatabaseEngine."""
@@ -393,6 +370,7 @@ class TestDatabaseEngine:
 # =============================================================================
 # SessionManager Tests
 # =============================================================================
+
 
 class TestSessionManager:
     """Tests for SessionManager."""
@@ -434,17 +412,14 @@ class TestSessionManager:
 # DomainRepository Tests
 # =============================================================================
 
+
 class TestDomainRepository:
     """Tests for DomainRepository."""
 
     def test_create_domain(self, session):
         """Test creating domain through repository."""
         repo = DomainRepository()
-        domain = repo.create(
-            session,
-            name="RepoTest",
-            domain_type="fundamental"
-        )
+        domain = repo.create(session, name="RepoTest", domain_type="fundamental")
         session.commit()
 
         assert domain.id is not None
@@ -459,7 +434,7 @@ class TestDomainRepository:
             positive_name="abstract",
             positive_value=50.0,
             negative_name="concrete",
-            negative_value=50.0
+            negative_value=50.0,
         )
         session.commit()
 
@@ -538,9 +513,12 @@ class TestDomainRepository:
 
         # Create compliant domain
         repo.create_with_duality(
-            session, name="Compliant",
-            positive_name="pos", positive_value=50.0,
-            negative_name="neg", negative_value=50.0
+            session,
+            name="Compliant",
+            positive_name="pos",
+            positive_value=50.0,
+            negative_name="neg",
+            negative_value=50.0,
         )
 
         # Create non-compliant domain
@@ -558,6 +536,7 @@ class TestDomainRepository:
 # ConceptRepository Tests
 # =============================================================================
 
+
 class TestConceptRepository:
     """Tests for ConceptRepository."""
 
@@ -569,10 +548,7 @@ class TestConceptRepository:
 
         repo = ConceptRepository()
         concept = repo.create_concept(
-            session,
-            domain_id=domain.id,
-            name="TestConcept",
-            concept_type="definition"
+            session, domain_id=domain.id, name="TestConcept", concept_type="definition"
         )
         session.commit()
 
@@ -628,6 +604,7 @@ class TestConceptRepository:
 # RelationRepository Tests
 # =============================================================================
 
+
 class TestRelationRepository:
     """Tests for RelationRepository."""
 
@@ -644,7 +621,7 @@ class TestRelationRepository:
             source_domain_id=domain1.id,
             target_domain_id=domain2.id,
             name="TestRelation",
-            total_influence=100.0
+            total_influence=100.0,
         )
         session.commit()
 
@@ -673,6 +650,7 @@ class TestRelationRepository:
 # Integration Tests
 # =============================================================================
 
+
 class TestDatabaseIntegration:
     """Integration tests for database module."""
 
@@ -688,7 +666,7 @@ class TestDatabaseIntegration:
             positive_name="abstract",
             positive_value=50.0,
             negative_name="concrete",
-            negative_value=50.0
+            negative_value=50.0,
         )
         session.flush()
 
@@ -738,7 +716,7 @@ class TestDatabaseIntegration:
                 positive_name="pos",
                 positive_value=50.0,
                 negative_name="neg",
-                negative_value=50.0
+                negative_value=50.0,
             )
         session.commit()
 
@@ -751,6 +729,7 @@ class TestDatabaseIntegration:
 # =============================================================================
 # Persistence Service Tests
 # =============================================================================
+
 
 class TestDomainPersistenceService:
     """Tests for DomainPersistenceService."""
@@ -789,8 +768,8 @@ class TestDomainPersistenceService:
     def test_list_domains(self, engine):
         """Test listing persisted domains."""
         from database.persistence import DomainPersistenceService
-        from knowledge.domains.mathematics import create_mathematics_domain
         from knowledge.domains.code import create_code_domain
+        from knowledge.domains.mathematics import create_mathematics_domain
 
         service = DomainPersistenceService(auto_init=False)
         service.save_domain(create_mathematics_domain())
@@ -829,16 +808,12 @@ class TestDomainPersistenceService:
     def test_save_all_domains(self, engine):
         """Test saving multiple domains."""
         from database.persistence import DomainPersistenceService
+        from knowledge.domains.code import create_code_domain
         from knowledge.domains.mathematics import create_mathematics_domain
         from knowledge.domains.physics import create_physics_domain
-        from knowledge.domains.code import create_code_domain
 
         service = DomainPersistenceService(auto_init=False)
-        domains = [
-            create_mathematics_domain(),
-            create_physics_domain(),
-            create_code_domain()
-        ]
+        domains = [create_mathematics_domain(), create_physics_domain(), create_code_domain()]
 
         saved = service.save_all_domains(domains)
         assert len(saved) == 3
