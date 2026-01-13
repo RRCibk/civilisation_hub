@@ -187,7 +187,7 @@ python -m pytest tests/test_equilibrium.py -v
 python -m pytest --cov=. --cov-report=term-missing
 ```
 
-Current test count: **592 tests**
+Current test count: **641 tests** (88% coverage)
 
 ## The META 50/50 Principle
 
