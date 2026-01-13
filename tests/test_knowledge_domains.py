@@ -719,9 +719,9 @@ class TestCrossDomainIntegration:
             create_philosophy_domain(),
         ]
         for domain in domains:
-            assert (
-                domain.concept_count >= min_concepts
-            ), f"{domain.name} has only {domain.concept_count} concepts"
+            assert domain.concept_count >= min_concepts, (
+                f"{domain.name} has only {domain.concept_count} concepts"
+            )
 
 
 # =============================================================================
