@@ -29,6 +29,7 @@ dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "ruff>=0.4.0",
+    "mypy>=1.10.0",
 ]
 
 [project.scripts]
@@ -77,3 +78,16 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["core", "models", "knowledge", "evolution", "participation", "verification", "output", "database"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+ignore_missing_imports = true
+exclude = [
+    "venv/",
+    "tests/",
+]

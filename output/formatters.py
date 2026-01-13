@@ -464,4 +464,4 @@ def create_formatter(format_type: OutputFormat | str) -> Formatter:
     }
 
     formatter_class = formatters.get(format_type, TextFormatter)
-    return formatter_class()
+    return formatter_class()  # type: ignore[no-any-return]

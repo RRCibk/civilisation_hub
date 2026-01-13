@@ -85,7 +85,7 @@ class Repository(ABC, Generic[T]):
         Returns:
             Model instance or None
         """
-        stmt = select(self.model_class).where(self.model_class.uuid == uuid)
+        stmt = select(self.model_class).where(self.model_class.uuid == uuid)  # type: ignore[attr-defined]
         return session.execute(stmt).scalar_one_or_none()
 
     def get_all(self, session: Session, limit: int | None = None) -> list[T]:

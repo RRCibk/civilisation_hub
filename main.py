@@ -56,8 +56,8 @@ class CivilisationHub:
         # Initialize components
         self._domains: dict[str, KnowledgeDomain] = {}
         self._registry = DomainRegistry()
-        self._evolution = EvolutionTracker()
-        self._participation = ParticipationTracker()
+        self._evolution: EvolutionTracker[Any] = EvolutionTracker()
+        self._participation: ParticipationTracker[Any] = ParticipationTracker()
         self._contributions = ContributionManager()
         self._verifier = Verifier()
 

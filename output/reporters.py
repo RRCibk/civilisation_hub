@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from output.display import ConsoleDisplay, Display
+from output.display import ConsoleDisplay
 
 
 @dataclass
@@ -39,12 +39,12 @@ class Report:
 class Reporter(ABC):
     """Abstract base class for reporters."""
 
-    def __init__(self, display: Display | None = None):
+    def __init__(self, display: ConsoleDisplay | None = None):
         self._display = display or ConsoleDisplay()
         self._reports: list[Report] = []
 
     @property
-    def display(self) -> Display:
+    def display(self) -> ConsoleDisplay:
         return self._display
 
     @abstractmethod
@@ -337,7 +337,7 @@ class VerificationReporter(Reporter):
 class SystemReporter(Reporter):
     """Comprehensive system reporter combining all aspects."""
 
-    def __init__(self, display: Display | None = None):
+    def __init__(self, display: ConsoleDisplay | None = None):
         super().__init__(display)
         self._domain_reporter = DomainReporter(display)
         self._equilibrium_reporter = EquilibriumReporter(display)
@@ -453,7 +453,7 @@ class SystemReporter(Reporter):
         super().render_report(report)
 
 
-def create_reporter(reporter_type: str, display: Display | None = None) -> Reporter:
+def create_reporter(reporter_type: str, display: ConsoleDisplay | None = None) -> Reporter:
     """
     Factory function to create appropriate reporter.
 
@@ -474,4 +474,4 @@ def create_reporter(reporter_type: str, display: Display | None = None) -> Repor
     }
 
     reporter_class = reporters.get(reporter_type.lower(), SystemReporter)
-    return reporter_class(display)
+    return reporter_class(display)  # type: ignore[abstract]

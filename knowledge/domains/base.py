@@ -241,7 +241,7 @@ class KnowledgeDomain(ABC):
 
     def get_domain_stats(self) -> dict[str, Any]:
         """Get domain statistics."""
-        concepts_by_type = {}
+        concepts_by_type: dict[str, int] = {}
         for concept in self._concepts.values():
             t = concept.concept_type.value
             concepts_by_type[t] = concepts_by_type.get(t, 0) + 1
